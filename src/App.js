@@ -8,7 +8,7 @@ function App() {
   const [tab, setTab] = useState("1");
 
   return (
-    <Stack>
+    <Stack sx={{ height: "100vh" }}>
       <Typography variant="h1">Finances</Typography>
       <TabContext value={tab}>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
