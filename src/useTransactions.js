@@ -39,16 +39,16 @@ function useTransactions() {
       date: moment("2022-02-01"),
     },
     {
-      id: "6275cf18-e75c-459b-a948-6708195b7d21",
-      memo: "c",
-      amount: -4,
-      date: moment("2022-03-03"),
-    },
-    {
       id: "6275cf18-e75c-459b-a948-670839abe33e",
       memo: "d",
       amount: +20,
       date: moment("2022-02-04"),
+    },
+    {
+      id: "6275cf18-e75c-459b-a948-6708195b7d21",
+      memo: "c",
+      amount: -4,
+      date: moment("2022-03-03"),
     },
   ];
 
