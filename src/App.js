@@ -20,7 +20,7 @@ function App() {
             <Tab label="Visualization" value="2" />
           </TabList>
         </Box>
-        <TabPanel sx={{ overflow: "hidden", height: "100%" }} value="1">
+        <TabPanel sx={{ overflow: "scroll", height: "100%" }} value="1">
           <Transactions />
         </TabPanel>
         <TabPanel sx={{ overflow: "hidden", height: "100%" }} value="2">
