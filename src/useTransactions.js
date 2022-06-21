@@ -1,7 +1,8 @@
 import moment from "moment";
+import { useState } from "react";
 
 function useTransactions() {
-  let mockTransactions = [
+  const [transactions, setTransactions] = useState([
     {
       id: "626e4741-144e-4ea4-be0d-1a4ec851c073",
       memo: "a",
@@ -50,9 +51,9 @@ function useTransactions() {
       amount: -4,
       date: moment("2022-03-03"),
     },
-  ];
+  ]);
 
-  return mockTransactions;
+  return transactions;
 }
 
 export default useTransactions;

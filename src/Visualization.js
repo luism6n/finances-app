@@ -2,69 +2,71 @@ import React, { useEffect } from "react";
 import useTransactions from "./useTransactions";
 import * as d3 from "d3";
 import useSize from "./useSize";
-import { Stack } from "@mui/material";
+import { Stack, Tooltip, Typography } from "@mui/material";
 
 export default function Visualization() {
   const transactions = useTransactions();
   const { ref, height, width } = useSize();
 
+  const margin = {
+    r: 50,
+    t: 50,
+    l: 50,
+    b: 50,
+  };
+
+  const expenses = d3.rollup(
+    transactions.filter((t) => t.amount < 0),
+    (g) => d3.sum(g, (t) => t.amount),
+    (t) => t.date.format("Y/M")
+  );
+
+  const income = d3.rollup(
+    transactions.filter((t) => t.amount >= 0),
+    (g) => d3.sum(g, (t) => t.amount),
+    (t) => t.date.format("Y/M")
+  );
+
+  const net = d3.rollup(
+    transactions,
+    (g) => d3.sum(g, (t) => t.amount),
+    (t) => t.date.format("Y/M")
+  );
+
+  const yDomain = [d3.min(expenses.values()), d3.max(income.values())];
+  const yScale = d3
+    .scaleLinear()
+    .domain(yDomain)
+    .range([height - margin.b, margin.t])
+    .nice();
+  const yAxis = d3.axisLeft(yScale);
+
+  const xDomain = [
+    ...new Set(transactions.map((t) => t.date.format("Y/M"))),
+  ].sort(); // Add empty month at the end so that we have space
+  const xScale = d3
+    .scaleBand()
+    .domain(xDomain)
+    .range([margin.l, width - margin.r])
+    .paddingOuter(0.1)
+    .paddingInner(0.1);
+  const xAxis = d3.axisBottom(xScale);
+
+  const lineAtZero = d3.line()([
+    [margin.l, yScale(0)],
+    [width - margin.r, yScale(0)],
+  ]);
+
   useEffect(() => {
-    const margin = {
-      r: 50,
-      t: 50,
-      l: 50,
-      b: 50,
-    };
-
-    const expenses = d3.rollup(
-      transactions.filter((t) => t.amount < 0),
-      (g) => d3.sum(g, (t) => t.amount),
-      (t) => t.date.format("Y/M")
-    );
-
-    const income = d3.rollup(
-      transactions.filter((t) => t.amount >= 0),
-      (g) => d3.sum(g, (t) => t.amount),
-      (t) => t.date.format("Y/M")
-    );
-
-    const net = d3.rollup(
-      transactions,
-      (g) => d3.sum(g, (t) => t.amount),
-      (t) => t.date.format("Y/M")
-    );
-
-    const yDomain = [d3.min(expenses.values()), d3.max(income.values())];
-    const yScale = d3
-      .scaleLinear()
-      .domain(yDomain)
-      .range([height - margin.b, margin.t])
-      .nice();
-    const yAxis = d3.axisLeft(yScale);
     d3.select("#container")
       .select("g.yAxis")
       .attr("transform", `translate(${margin.r})`)
       .call(yAxis);
 
-    const xDomain = [
-      ...new Set(transactions.map((t) => t.date.format("Y/M"))),
-    ].sort(); // Add empty month at the end so that we have space
-    const xScale = d3
-      .scaleBand()
-      .domain(xDomain)
-      .range([margin.l, width - margin.r])
-      .paddingOuter(0.1)
-      .paddingInner(0.1);
-    const xAxis = d3.axisBottom(xScale);
     d3.select("#container")
       .select("g.xAxis")
       .attr("transform", `translate(0, ${height - margin.b})`)
       .call(xAxis);
-
-    const lineAtZero = d3.line()([
-      [margin.l, yScale(0)],
-      [width - margin.r, yScale(0)],
-    ]);
 
     d3.select("path.lineAtZero").attr("d", lineAtZero).style("stroke", "gray");
 
@@ -88,16 +90,12 @@ export default function Visualization() {
       .attr("width", xScale.bandwidth() / 4)
       .style("fill", "green");
 
-    d3.select("g.net")
-      .selectAll("rect")
-      .data(net.entries())
-      .join("rect")
-      .attr("x", (d) => xScale(d[0]) + (2 * xScale.bandwidth()) / 4)
-      .attr("y", (d) => Math.min(yScale(0), yScale(d[1])))
-      .attr("height", (d) => Math.abs(yScale(0) - yScale(d[1])))
-      .attr("width", xScale.bandwidth() / 4)
-      .style("fill", "blue");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transactions, width, height]);
+
+  function expensesTitle(yearMonth) {
+    return yearMonth;
+  }
 
   return (
     <Stack sx={{ flex: 1, height: "100%" }} ref={ref}>
@@ -107,7 +105,21 @@ export default function Visualization() {
         <g className="yAxis"></g>
         <g className="expenses"></g>
         <g className="income"></g>
-        <g className="net"></g>
+        <g className="net">
+          {Array.from(net.entries()).map((d) => {
+            return (
+              <Tooltip key={d[0]} title={expensesTitle(d[0])}>
+                <rect
+                  x={xScale(d[0]) + (2 * xScale.bandwidth()) / 4}
+                  y={Math.min(yScale(0), yScale(d[1]))}
+                  height={Math.abs(yScale(0) - yScale(d[1]))}
+                  width={xScale.bandwidth() / 4}
+                  style={{ fill: "blue" }}
+                ></rect>
+              </Tooltip>
+            );
+          })}
+        </g>
       </svg>
     </Stack>
   );
