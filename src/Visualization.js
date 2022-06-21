@@ -70,31 +70,68 @@ export default function Visualization() {
 
     d3.select("path.lineAtZero").attr("d", lineAtZero).style("stroke", "gray");
 
-    d3.select("g.expenses")
-      .selectAll("rect")
-      .data(expenses.entries())
-      .join("rect")
-      .attr("x", (d) => xScale(d[0]))
-      .attr("y", yScale(0))
-      .attr("height", (d) => Math.abs(yScale(0) - yScale(d[1])))
-      .attr("width", xScale.bandwidth() / 4)
-      .style("fill", "red");
-
-    d3.select("g.income")
-      .selectAll("rect")
-      .data(income.entries())
-      .join("rect")
-      .attr("x", (d) => xScale(d[0]) + xScale.bandwidth() / 4)
-      .attr("y", (d) => yScale(d[1]))
-      .attr("height", (d) => Math.abs(yScale(0) - yScale(d[1])))
-      .attr("width", xScale.bandwidth() / 4)
-      .style("fill", "green");
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transactions, width, height]);
 
   function expensesTitle(yearMonth) {
-    return yearMonth;
+    const biggestExpenses = d3.rollup(
+      transactions
+        .filter((t) => t.amount < 0)
+        .filter((t) => t.date.format("Y/M") === yearMonth),
+      (g) => d3.sum(g, (d) => -d.amount),
+      (d) => d.memo
+    );
+
+    console.log(biggestExpenses);
+
+    return (
+      <Stack>
+        <Typography>{yearMonth}</Typography>
+        {Array.from(biggestExpenses.entries())
+          .sort((d1, d2) => d2[1] - d1[1])
+          .map((d) => {
+            return (
+              <Typography variant="body2">
+                {d[0]}: {d[1]}
+              </Typography>
+            );
+          })}
+      </Stack>
+    );
+  }
+
+  function incomeTitle(yearMonth) {
+    return (
+      <Stack>
+        <Typography>{yearMonth}</Typography>
+        {transactions
+          .filter((t) => t.amount >= 0)
+          .filter((t) => t.date.format("Y/M") === yearMonth)
+          .sort((t1, t2) => t1.amount - t2.amount[1])
+          .map((t) => {
+            return (
+              <Typography variant="body2">
+                {t.memo}: {t.amount}
+              </Typography>
+            );
+          })}
+      </Stack>
+    );
+  }
+
+  function netTitle(yearMonth) {
+    const net = d3.sum(
+      transactions
+        .filter((t) => t.date.format("Y/M") === yearMonth)
+        .map((d) => d.amount)
+    );
+
+    return (
+      <Stack>
+        <Typography>{yearMonth}</Typography>
+        <Typography variant="body2">Net: {net}</Typography>
+      </Stack>
+    );
   }
 
   return (
@@ -103,12 +140,39 @@ export default function Visualization() {
         <g className="xAxis"></g>
         <path className="lineAtZero"></path>
         <g className="yAxis"></g>
-        <g className="expenses"></g>
+        <g className="expenses">
+          {Array.from(expenses.entries()).map((d) => {
+            return (
+              <Tooltip key={d[0]} title={expensesTitle(d[0])}>
+                <rect
+                  x={xScale(d[0])}
+                  y={yScale(0)}
+                  height={Math.abs(yScale(0) - yScale(d[1]))}
+                  width={xScale.bandwidth() / 4}
+                  style={{ fill: "red" }}
+                ></rect>
+              </Tooltip>
+            );
+          })}
+        </g>
         <g className="income"></g>
+        {Array.from(income.entries()).map((d) => {
+          return (
+            <Tooltip key={d[0]} title={incomeTitle(d[0])}>
+              <rect
+                x={xScale(d[0]) + xScale.bandwidth() / 4}
+                y={yScale(d[1])}
+                height={Math.abs(yScale(0) - yScale(d[1]))}
+                width={xScale.bandwidth() / 4}
+                style={{ fill: "green" }}
+              ></rect>
+            </Tooltip>
+          );
+        })}
         <g className="net">
           {Array.from(net.entries()).map((d) => {
             return (
-              <Tooltip key={d[0]} title={expensesTitle(d[0])}>
+              <Tooltip key={d[0]} title={netTitle(d[0])}>
                 <rect
                   x={xScale(d[0]) + (2 * xScale.bandwidth()) / 4}
                   y={Math.min(yScale(0), yScale(d[1]))}
