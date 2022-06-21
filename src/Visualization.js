@@ -5,7 +5,7 @@ import useSize from "./useSize";
 import { Stack, Tooltip, Typography } from "@mui/material";
 
 export default function Visualization() {
-  const transactions = useTransactions();
+  const { transactions } = useTransactions();
   const { ref, height, width } = useSize();
 
   const margin = {
@@ -82,16 +82,14 @@ export default function Visualization() {
       (d) => d.memo
     );
 
-    console.log(biggestExpenses);
-
     return (
-      <Stack>
+      <Stack max-height="100%">
         <Typography>Expenses</Typography>
         {Array.from(biggestExpenses.entries())
           .sort((d1, d2) => d2[1] - d1[1])
           .map((d) => {
             return (
-              <Typography variant="body2">
+              <Typography key={d[0]} variant="body2">
                 {d[0]}: {d[1]}
               </Typography>
             );
@@ -110,7 +108,7 @@ export default function Visualization() {
           .sort((t1, t2) => t1.amount - t2.amount[1])
           .map((t) => {
             return (
-              <Typography variant="body2">
+              <Typography key={t.id} variant="body2">
                 {t.memo}: {t.amount}
               </Typography>
             );
