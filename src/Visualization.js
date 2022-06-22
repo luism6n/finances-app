@@ -18,19 +18,19 @@ export default function Visualization() {
   const expenses = d3.rollup(
     transactions.filter((t) => t.amount < 0),
     (g) => d3.sum(g, (t) => t.amount),
-    (t) => t.date.format("Y/M")
+    (t) => t.date.format("YY/MM")
   );
 
   const income = d3.rollup(
     transactions.filter((t) => t.amount >= 0),
     (g) => d3.sum(g, (t) => t.amount),
-    (t) => t.date.format("Y/M")
+    (t) => t.date.format("YY/MM")
   );
 
   const net = d3.rollup(
     transactions,
     (g) => d3.sum(g, (t) => t.amount),
-    (t) => t.date.format("Y/M")
+    (t) => t.date.format("YY/MM")
   );
 
   const yDomain = [d3.min(expenses.values()), d3.max(income.values())];
@@ -42,7 +42,7 @@ export default function Visualization() {
   const yAxis = d3.axisLeft(yScale);
 
   const xDomain = [
-    ...new Set(transactions.map((t) => t.date.format("Y/M"))),
+    ...new Set(transactions.map((t) => t.date.format("YY/MM"))),
   ].sort(); // Add empty month at the end so that we have space
   const xScale = d3
     .scaleBand()
@@ -50,7 +50,19 @@ export default function Visualization() {
     .range([margin.l, width - margin.r])
     .paddingOuter(0.1)
     .paddingInner(0.1);
-  const xAxis = d3.axisBottom(xScale);
+
+  const xTicks = [
+    xDomain[0],
+    ...xDomain.filter((d, i) => {
+      return (
+        i !== 0 &&
+        i !== xDomain.length - 1 &&
+        i % Math.floor(xDomain.length / 8) === 0
+      );
+    }),
+    xDomain[xDomain.length - 1],
+  ];
+  const xAxis = d3.axisBottom(xScale).tickValues(xTicks);
 
   const lineAtZero = d3.line()([
     [margin.l, yScale(0)],
@@ -77,16 +89,19 @@ export default function Visualization() {
     const biggestExpenses = d3.rollup(
       transactions
         .filter((t) => t.amount < 0)
-        .filter((t) => t.date.format("Y/M") === yearMonth),
+        .filter((t) => t.date.format("YY/MM") === yearMonth),
       (g) => d3.sum(g, (d) => -d.amount),
       (d) => d.memo
     );
 
+    let total = d3.sum(biggestExpenses.values());
+
     return (
       <Stack max-height="100%">
-        <Typography>Expenses</Typography>
+        <Typography>Expenses: {total}</Typography>
         {Array.from(biggestExpenses.entries())
           .sort((d1, d2) => d2[1] - d1[1])
+          .slice(0, 10)
           .map((d) => {
             return (
               <Typography key={d[0]} variant="body2">
@@ -99,13 +114,16 @@ export default function Visualization() {
   }
 
   function incomeTitle(yearMonth) {
+    let income = transactions
+      .filter((t) => t.amount >= 0)
+      .filter((t) => t.date.format("YY/MM") === yearMonth);
+    let total = d3.sum(income, (t) => t.amount);
     return (
       <Stack>
-        <Typography>Income</Typography>
-        {transactions
-          .filter((t) => t.amount >= 0)
-          .filter((t) => t.date.format("Y/M") === yearMonth)
+        <Typography>Income: {total}</Typography>
+        {income
           .sort((t1, t2) => t1.amount - t2.amount[1])
+          .slice(0, 10)
           .map((t) => {
             return (
               <Typography key={t.id} variant="body2">
@@ -120,7 +138,7 @@ export default function Visualization() {
   function netTitle(yearMonth) {
     const net = d3.sum(
       transactions
-        .filter((t) => t.date.format("Y/M") === yearMonth)
+        .filter((t) => t.date.format("YY/MM") === yearMonth)
         .map((d) => d.amount)
     );
 
