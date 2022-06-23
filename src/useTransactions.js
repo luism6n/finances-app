@@ -42,15 +42,15 @@ function useTransactions() {
   }
 
   function ignore(t) {
-    setUnfiltered([
-      ...unfiltered.filter((tt) => tt.id !== t.id),
+    setUnfiltered((u) => [
+      ...u.filter((tt) => tt.id !== t.id),
       { ...t, ignored: true },
     ]);
   }
 
   function unignore(t) {
-    setUnfiltered([
-      ...unfiltered.filter((tt) => tt.id !== t.id),
+    setUnfiltered((u) => [
+      ...u.filter((tt) => tt.id !== t.id),
       { ...t, ignored: false },
     ]);
   }

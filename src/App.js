@@ -1,5 +1,5 @@
 import { TabContext, TabList, TabPanel } from "@mui/lab";
-import { Box, Stack, Tab, TextField, Typography } from "@mui/material";
+import { Box, Button, Stack, Tab, TextField, Typography } from "@mui/material";
 import { useState } from "react";
 import Transactions from "./Transactions";
 import useTransactions from "./useTransactions";
@@ -21,6 +21,18 @@ function App() {
     t.memo.toLowerCase().includes(filterMemo)
   );
 
+  function ignoreSelected() {
+    for (let t of filtered) {
+      ignore(t);
+    }
+  }
+
+  function unignoreSelected() {
+    for (let t of filtered) {
+      unignore(t);
+    }
+  }
+
   return (
     <Stack sx={{ height: "98vh", padding: "1vh" }}>
       <Typography variant="h2">Finances</Typography>
@@ -29,6 +41,8 @@ function App() {
         onChange={(e) => setFilterMemo(e.target.value)}
         label="filter memo"
       />
+      <Button onClick={ignoreSelected}>Ignore selected</Button>
+      <Button onClick={unignoreSelected}>Unignore selected</Button>
       <TabContext value={tab}>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
           <TabList
@@ -52,8 +66,8 @@ function App() {
           />
         </TabPanel>
         <TabPanel sx={{ overflow: "hidden", height: "100%" }} value="2">
-          {filtered.length > 0 ? (
-            <Visualization transactions={filtered} />
+          {transactions.length > 0 ? (
+            <Visualization transactions={transactions} />
           ) : (
             "Select at least one transaction"
           )}
