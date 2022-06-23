@@ -51,7 +51,7 @@ export default function Transactions() {
         onChange={(e) => loadFiles(e.target.files)}
         id="fileInput"
         type="file"
-        style={{ hidden: true }}
+        style={{ display: "none" }}
         multiple
       ></input>
     </Fragment>
