@@ -5,7 +5,7 @@ import FileSelector from "./FileSelector.js";
 import TransactionCard from "./TransactionCard.js";
 
 export default function Transactions({
-  unfiltered,
+  transactions,
   ignore,
   unignore,
   setUnfiltered,
@@ -17,10 +17,20 @@ export default function Transactions({
     setFileSelectorOpen(true);
   }
 
+  function orderTransactions(t1, t2) {
+    if (t1.ignored && !t2.ignored) {
+      return 1;
+    } else if (t2.ignored && !t1.ignored) {
+      return -1;
+    }
+
+    return t1.id.localeCompare(t2.id);
+  }
+
   return (
     <Fragment>
-      {unfiltered
-        .sort((t1, t2) => t1.id.localeCompare(t2.id))
+      {transactions
+        .sort(orderTransactions)
         .slice(-10)
         .map((t) => (
           <TransactionCard

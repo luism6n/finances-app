@@ -1,5 +1,5 @@
 import { TabContext, TabList, TabPanel } from "@mui/lab";
-import { Box, Stack, Tab, Typography } from "@mui/material";
+import { Box, Stack, Tab, TextField, Typography } from "@mui/material";
 import { useState } from "react";
 import Transactions from "./Transactions";
 import useTransactions from "./useTransactions";
@@ -7,6 +7,7 @@ import Visualization from "./Visualization";
 
 function App() {
   const [tab, setTab] = useState("1");
+  const [filterMemo, setFilterMemo] = useState("");
   const {
     transactions,
     unfiltered,
@@ -16,9 +17,18 @@ function App() {
     setOpenFiles,
   } = useTransactions();
 
+  const filtered = unfiltered.filter((t) =>
+    t.memo.toLowerCase().includes(filterMemo)
+  );
+
   return (
-    <Stack sx={{ height: "100vh" }}>
-      <Typography variant="h1">Finances</Typography>
+    <Stack sx={{ height: "100vh", padding: 2 }}>
+      <Typography variant="h2">Finances</Typography>
+      <TextField
+        value={filterMemo}
+        onChange={(e) => setFilterMemo(e.target.value)}
+        label="filter memo"
+      />
       <TabContext value={tab}>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
           <TabList
@@ -31,7 +41,7 @@ function App() {
         </Box>
         <TabPanel sx={{ overflow: "scroll", height: "100%" }} value="1">
           <Transactions
-            unfiltered={unfiltered}
+            transactions={filtered}
             ignore={ignore}
             unignore={unignore}
             setUnfiltered={setUnfiltered}
@@ -39,8 +49,8 @@ function App() {
           />
         </TabPanel>
         <TabPanel sx={{ overflow: "hidden", height: "100%" }} value="2">
-          {transactions.length > 0 ? (
-            <Visualization transactions={transactions} />
+          {filtered.length > 0 ? (
+            <Visualization transactions={filtered} />
           ) : (
             "Select at least one transaction"
           )}
