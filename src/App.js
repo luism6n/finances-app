@@ -22,7 +22,7 @@ function App() {
   );
 
   return (
-    <Stack sx={{ height: "100vh", padding: 2 }}>
+    <Stack sx={{ height: "98vh", padding: "1vh" }}>
       <Typography variant="h2">Finances</Typography>
       <TextField
         value={filterMemo}
@@ -39,7 +39,10 @@ function App() {
             <Tab label="Visualization" value="2" />
           </TabList>
         </Box>
-        <TabPanel sx={{ overflow: "scroll", height: "100%" }} value="1">
+        <TabPanel
+          sx={{ overflow: "hidden", height: "100%", overflowY: "scroll" }}
+          value="1"
+        >
           <Transactions
             transactions={filtered}
             ignore={ignore}
