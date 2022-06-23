@@ -2,10 +2,19 @@ import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { Box, Stack, Tab, Typography } from "@mui/material";
 import { useState } from "react";
 import Transactions from "./Transactions";
+import useTransactions from "./useTransactions";
 import Visualization from "./Visualization";
 
 function App() {
   const [tab, setTab] = useState("1");
+  const {
+    transactions,
+    unfiltered,
+    ignore,
+    unignore,
+    setUnfiltered,
+    setOpenFiles,
+  } = useTransactions();
 
   return (
     <Stack sx={{ height: "100vh" }}>
@@ -21,10 +30,20 @@ function App() {
           </TabList>
         </Box>
         <TabPanel sx={{ overflow: "scroll", height: "100%" }} value="1">
-          <Transactions />
+          <Transactions
+            unfiltered={unfiltered}
+            ignore={ignore}
+            unignore={unignore}
+            setUnfiltered={setUnfiltered}
+            setOpenFiles={setOpenFiles}
+          />
         </TabPanel>
         <TabPanel sx={{ overflow: "hidden", height: "100%" }} value="2">
-          <Visualization />
+          {transactions.length > 0 ? (
+            <Visualization transactions={transactions} />
+          ) : (
+            "Select at least one transaction"
+          )}
         </TabPanel>
       </TabContext>
     </Stack>

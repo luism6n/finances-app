@@ -4,8 +4,7 @@ import * as d3 from "d3";
 import useSize from "./useSize";
 import { Stack, Tooltip, Typography } from "@mui/material";
 
-export default function Visualization() {
-  const { transactions } = useTransactions();
+export default function Visualization({ transactions }) {
   const { ref, height, width } = useSize();
 
   const margin = {
@@ -33,7 +32,12 @@ export default function Visualization() {
     (t) => t.date.format("YY/MM")
   );
 
-  const yDomain = [d3.min(expenses.values()), d3.max(income.values())];
+  console.log({ expenses, income, net });
+
+  const yDomain = [
+    d3.min([...expenses.values(), 0]),
+    d3.max([...income.values(), 0]),
+  ];
   const yScale = d3
     .scaleLinear()
     .domain(yDomain)
@@ -42,7 +46,7 @@ export default function Visualization() {
   const yAxis = d3.axisLeft(yScale);
 
   const xLimits = d3.extent(transactions, (t) => t.date);
-  let currentDate = xLimits[0].startOf("month");
+  let currentDate = xLimits[0].clone().startOf("month");
   let xDomain = [currentDate.format("YY/MM")];
   while (currentDate < xLimits[1]) {
     currentDate.add(1, "month");
@@ -127,7 +131,7 @@ export default function Visualization() {
         <Typography>Income: {total}</Typography>
         {income
           .sort((t1, t2) => t1.amount - t2.amount[1])
-          .slice(0, 10)
+          .slice(0, 5)
           .map((t) => {
             return (
               <Typography key={t.id} variant="body2">
@@ -163,7 +167,7 @@ export default function Visualization() {
         <g className="income">
           {Array.from(income.entries()).map((d) => {
             return (
-              <Tooltip key={d[0]} title={incomeTitle(d[0])}>
+              <Tooltip key={d[0]} title={incomeTitle(d[0])} placement="right">
                 <rect
                   x={xScale(d[0])}
                   y={yScale(d[1])}
@@ -178,7 +182,7 @@ export default function Visualization() {
         <g className="expenses">
           {Array.from(expenses.entries()).map((d) => {
             return (
-              <Tooltip key={d[0]} title={expensesTitle(d[0])}>
+              <Tooltip key={d[0]} title={expensesTitle(d[0])} placement="right">
                 <rect
                   x={xScale(d[0]) + xScale.bandwidth() / 3}
                   y={yScale(0)}
@@ -193,7 +197,7 @@ export default function Visualization() {
         <g className="net">
           {Array.from(net.entries()).map((d) => {
             return (
-              <Tooltip key={d[0]} title={netTitle(d[0])}>
+              <Tooltip key={d[0]} title={netTitle(d[0])} placement="right">
                 <rect
                   x={xScale(d[0]) + (2 * xScale.bandwidth()) / 3}
                   y={Math.min(yScale(0), yScale(d[1]))}

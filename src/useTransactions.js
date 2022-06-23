@@ -2,69 +2,70 @@ import moment from "moment";
 import { useState } from "react";
 
 function useTransactions() {
-  const [transactions, _setTransactions] = useState(
+  const [openFiles, setOpenFiles] = useState([]);
+  const [unfiltered, _setUnfiltered] = useState(
     (
-      JSON.parse(window.localStorage.getItem("transactions")) || [
+      JSON.parse(window.localStorage.getItem("unfiltered")) || [
         {
           id: "626e4741-144e-4ea4-be0d-1a4ec851c073",
           memo: "a",
-          amount: -5,
-          date: "2022-01-01",
+          amount: 20,
+          date: "2022-01-01T03:00:00.000Z",
+          ignored: false,
+          sequence: 1,
+          fileId: "fileId",
+          fileName: "f.name",
         },
         {
           id: "6275cf18-e75c-459b-a948-6708195b6610",
           memo: "b",
           amount: -10,
-          date: "2022-01-02",
-        },
-        {
-          id: "6275cf18-e75c-459b-a948-6708195b7321",
-          memo: "c",
-          amount: -3,
-          date: "2022-01-03",
-        },
-        {
-          id: "6275cf18-e75c-459b-a948-6708395be33e",
-          memo: "d",
-          amount: +20,
-          date: "2022-01-03",
-        },
-        {
-          id: "626e4741-144e-4ea4-be0d-1a4ece51c073",
-          memo: "a",
-          amount: -10,
-          date: "2022-02-03",
-        },
-        {
-          id: "6275cf18-e75c-459b-a948-6708195be610",
-          memo: "b",
-          amount: +10,
-          date: "2022-02-01",
-        },
-        {
-          id: "6275cf18-e75c-459b-a948-670839abe33e",
-          memo: "d",
-          amount: +20,
-          date: "2022-02-04",
-        },
-        {
-          id: "6275cf18-e75c-459b-a948-6708195b7d21",
-          memo: "c",
-          amount: -4,
-          date: "2022-03-03",
+          date: "2022-02-02T03:00:00.000Z",
+          ignored: false,
+          sequence: 1,
+          fileId: "fileId",
+          fileName: "f.name",
         },
       ]
     ).map((t) => {
-      return { ...t, date: moment(t.date) };
+      return { ...t, date: moment(t.date, moment.defaultFormatUtc) };
     })
   );
 
-  function setTransactions(t) {
-    window.localStorage.setItem("transactions", JSON.stringify(t));
-    _setTransactions(t);
+  function setUnfiltered(t) {
+    if (typeof t === "function") {
+      window.localStorage.setItem("unfiltered", JSON.stringify(t(unfiltered)));
+    } else {
+      window.localStorage.setItem("unfiltered", JSON.stringify(t));
+    }
+    _setUnfiltered(t);
   }
 
-  return { transactions, setTransactions };
+  function ignore(t) {
+    setUnfiltered([
+      ...unfiltered.filter((tt) => tt.id !== t.id),
+      { ...t, ignored: true },
+    ]);
+  }
+
+  function unignore(t) {
+    setUnfiltered([
+      ...unfiltered.filter((tt) => tt.id !== t.id),
+      { ...t, ignored: false },
+    ]);
+  }
+
+  let transactions = unfiltered.filter((t) => !t.ignored);
+  console.log(transactions);
+
+  return {
+    unfiltered,
+    transactions,
+    setUnfiltered,
+    setOpenFiles,
+    ignore,
+    unignore,
+  };
 }
 
 export default useTransactions;
