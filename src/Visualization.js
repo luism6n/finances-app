@@ -41,9 +41,13 @@ export default function Visualization() {
     .nice();
   const yAxis = d3.axisLeft(yScale);
 
-  const xDomain = [
-    ...new Set(transactions.map((t) => t.date.format("YY/MM"))),
-  ].sort(); // Add empty month at the end so that we have space
+  const xLimits = d3.extent(transactions, (t) => t.date);
+  let currentDate = xLimits[0].startOf("month");
+  let xDomain = [currentDate.format("YY/MM")];
+  while (currentDate < xLimits[1]) {
+    currentDate.add(1, "month");
+    xDomain.push(currentDate.format("YY/MM"));
+  }
   const xScale = d3
     .scaleBand()
     .domain(xDomain)

@@ -1,59 +1,160 @@
 import { Add } from "@mui/icons-material";
-import { Fab } from "@mui/material";
+import {
+  Backdrop,
+  Button,
+  Checkbox,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Fab,
+  Fade,
+  FormControl,
+  FormControlLabel,
+  FormGroup,
+  FormLabel,
+  Input,
+  Modal,
+  Radio,
+  RadioGroup,
+  Select,
+  Stack,
+} from "@mui/material";
+import { stack } from "d3";
 import moment from "moment";
-import React, { Fragment } from "react";
+import { nanoid } from "nanoid";
+import React, { Fragment, useState } from "react";
 import TransactionCard from "./TransactionCard.js";
 import useTransactions from "./useTransactions.js";
 import parseCSV from "./utils.js";
 
 export default function Transactions() {
   const { transactions, setTransactions } = useTransactions();
+  const [openFiles, setOpenFiles] = useState([]);
+  const [erasePrevious, setErasePrevious] = useState(false);
+  const [fileSelectorOpen, setFileSelectorOpen] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [selectedFilesFormat, setSelectedFilesFormat] = useState("nubank cc");
 
-  function addFiles() {
-    window.document.getElementById("fileInput").click();
-  }
-
-  async function loadFiles(files) {
-    if (files.length === 0) {
+  async function loadFiles() {
+    if (selectedFiles.length === 0) {
       console.info("no files added");
       return;
     }
 
-    let transactions = [];
-    for (let f of files) {
+    let newFiles = [];
+    let newTransactions = [];
+    for (let f of selectedFiles) {
+      const fileId = nanoid(10);
+      newFiles.push({ id: fileId, name: f.name });
+
       const fileContents = await f.text();
-      transactions = transactions.concat(parseCSV(fileContents));
+      newTransactions = newTransactions.concat(
+        parseCSV(fileContents)
+          .map((t, i) => {
+            return {
+              amount: -Number.parseFloat(t[3]),
+              date: moment(t[0]),
+              memo: t[2],
+              sequence: i,
+              fileId: fileId,
+              fileName: f.name,
+            };
+          })
+          .filter((t) => !Number.isNaN(t.amount))
+      );
     }
 
-    setTransactions(
-      transactions
-        .map((t, i) => {
-          return {
-            amount: -Number.parseFloat(t[3]),
-            date: moment(t[0]),
-            memo: t[2],
-            id: i,
-          };
-        })
-        .filter((t) => !Number.isNaN(t.amount))
-    );
+    if (erasePrevious) {
+      setOpenFiles(newFiles);
+      setTransactions(newTransactions);
+    } else {
+      setOpenFiles((o) => {
+        return [...o, newFiles];
+      });
+      setTransactions([...transactions, ...newTransactions]);
+    }
+
+    setFileSelectorOpen(false);
+  }
+
+  function openFileSelector() {
+    setFileSelectorOpen(true);
+  }
+
+  function onFileSelectorClosed() {
+    setFileSelectorOpen(false);
   }
 
   return (
     <Fragment>
-      {transactions.map((t) => (
+      {transactions.slice(-10).map((t) => (
         <TransactionCard key={t.id} t={t} />
       ))}
       <Fab sx={{ position: "absolute", bottom: 25, right: 25 }}>
-        <Add onClick={addFiles} />
+        <Add onClick={openFileSelector} />
       </Fab>
-      <input
-        onChange={(e) => loadFiles(e.target.files)}
-        id="fileInput"
-        type="file"
-        style={{ display: "none" }}
-        multiple
-      ></input>
+      <Dialog
+        aria-labelledby="file-selector-title"
+        aria-describedby="file-selector-description"
+        open={fileSelectorOpen}
+        onClose={onFileSelectorClosed}
+      >
+        <DialogTitle>Select files</DialogTitle>
+        <DialogContent>
+          <Stack>
+            <Input
+              sx={{ marginBottom: 3 }}
+              onChange={(e) => setSelectedFiles(e.target.files)}
+              id="fileInput"
+              inputProps={{ multiple: true }}
+              type="file"
+            ></Input>
+            <FormControl component="fieldset">
+              <FormLabel component="legend">Format</FormLabel>
+              <RadioGroup
+                aria-label="gender"
+                name="gender1"
+                value={selectedFilesFormat}
+                onChange={(e) => setSelectedFilesFormat(e.target.value)}
+              >
+                <FormControlLabel
+                  value="nubank credit card"
+                  control={<Radio />}
+                  label="Nubank Credit Card"
+                />
+                <FormControlLabel
+                  value="nubank account"
+                  control={<Radio />}
+                  label="Nubank Account"
+                />
+              </RadioGroup>
+            </FormControl>
+            <FormGroup>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={erasePrevious}
+                    onChange={setErasePrevious}
+                  />
+                }
+                label="Erase previously loaded transactions"
+              ></FormControlLabel>
+            </FormGroup>
+          </Stack>
+        </DialogContent>
+        <DialogActions
+          sx={{
+            flexDirection: "row",
+            justifyContent: "space-around",
+          }}
+        >
+          <Button onClick={() => setFileSelectorOpen(false)}>Close</Button>
+          <Button variant="contained" onClick={() => loadFiles()}>
+            Load
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Fragment>
   );
 }

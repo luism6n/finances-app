@@ -11,6 +11,7 @@ function formatMoney(s) {
 }
 
 export default function TransactionCard({ t }) {
+  if (!t.date) console.warn(t);
   return (
     <Card sx={{ margin: 1 }}>
       <CardContent>
@@ -18,7 +19,7 @@ export default function TransactionCard({ t }) {
         <Typography>{formatMoney(t.amount)}</Typography>
         <Typography>{t.date.format("DD/MM/YYYY")}</Typography>
         <Typography sx={{ mb: 1.5 }} color="text.secondary">
-          {t.id}
+          {t.fileName}:{t.sequence}
         </Typography>
       </CardContent>
     </Card>
