@@ -46,25 +46,51 @@ export default function Transactions() {
     let newTransactions = [];
     for (let f of selectedFiles) {
       const fileId = nanoid(10);
-      newFiles.push({ id: fileId, name: f.name });
 
       const fileContents = await f.text();
-      newTransactions = newTransactions.concat(
-        parseCSV(fileContents)
-          .map((t, i) => {
+      const fileTransactions = parseCSV(fileContents).map((t, i) => {
+        switch (selectedFilesFormat) {
+          case "nubank credit card":
             return {
               amount: -Number.parseFloat(t[3]),
-              date: moment(t[0]),
+              date: moment(t[0], "YYYY-MM-DD"),
               memo: t[2],
               sequence: i,
               fileId: fileId,
               fileName: f.name,
+              id: nanoid(),
             };
-          })
-          .filter((t) => !Number.isNaN(t.amount))
-      );
+          case "nubank account":
+            return {
+              amount: -Number.parseFloat(t[1]),
+              date: moment(t[0], "DD/MM/YYYY"),
+              memo: t[3],
+              sequence: i,
+              fileId: fileId,
+              fileName: f.name,
+              id: nanoid(),
+            };
+          default:
+            console.error(`file format "${selectedFilesFormat}" unknown`);
+            return null;
+        }
+      });
+
+      const newFile = {
+        id: fileId,
+        name: f.name,
+        format: selectedFilesFormat,
+        numTransactions: fileTransactions.length,
+      };
+      console.log("file loaded:", newFile);
+
+      newFiles.push(newFile);
+      newTransactions = newTransactions
+        .concat(fileTransactions)
+        .filter((t) => !Number.isNaN(t.amount));
     }
 
+    console.log("new transactions:", newTransactions);
     if (erasePrevious) {
       setOpenFiles(newFiles);
       setTransactions(newTransactions);
