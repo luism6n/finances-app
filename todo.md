@@ -2,14 +2,15 @@
 
 - brush to select date range
 - click to see expenses in that month
-- origin file to transactions
-- reverse flag to files
-- filters
 - categories
 - transaction file format
+- filter by date
+- optimize ingore/unignore selected buttons
 
 # Done
 
+- origin file to transactions
+- filter by name
 - ignore flag to transactions
 - individual file loading
 - transactions tab
