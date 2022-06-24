@@ -1,4 +1,5 @@
-import { Button, Card, CardContent, Typography } from "@mui/material";
+import { Button, Card, CardContent, Stack, Typography } from "@mui/material";
+import { Box } from "@mui/system";
 import React from "react";
 
 function formatMoney(s) {
@@ -10,29 +11,45 @@ function formatMoney(s) {
   return formatter.format(s);
 }
 
-export default function TransactionCard({ t, ignore, unignore }) {
+export default function TransactionCard({ index, t, ignore, unignore }) {
   if (!t.date) console.warn(t);
 
   let color = "text.primary";
+  let textDecoration = "none";
   if (t.ignored) {
+    textDecoration = "line-through";
     color = "text.secondary";
   }
 
   return (
-    <Card sx={{ margin: 1 }}>
-      <CardContent sx={{ color: color }}>
-        <Typography sx={{ fontSize: "1.5em" }}>{t.memo}</Typography>
-        <Typography>{formatMoney(t.amount)}</Typography>
-        <Typography>{t.date.format("DD/MM/YYYY")}</Typography>
-        <Typography sx={{ mb: 1.5 }} color="text.secondary">
-          {t.fileName}:{t.sequence}
-        </Typography>
-        {t.ignored ? (
-          <Button onClick={() => unignore(t)}>Unignore</Button>
-        ) : (
-          <Button onClick={() => ignore(t)}>Ignore</Button>
-        )}
-      </CardContent>
-    </Card>
+    <Stack
+      sx={{
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+      }}
+    >
+      <Typography color={color} sx={{ flex: 0.5 }}>
+        {index}
+      </Typography>
+      <Typography color={color} sx={{ textDecoration, flex: 1 }}>
+        {t.date.format("DD/MM/YYYY")}
+      </Typography>
+      <Typography color={color} sx={{ textDecoration, flex: 4 }}>
+        {t.memo}
+      </Typography>
+      <Typography align="left" color={color} sx={{ textDecoration, flex: 1 }}>
+        {formatMoney(t.amount)}
+      </Typography>
+      {t.ignored ? (
+        <Button sx={{ flex: 1 }} onClick={() => unignore(t)}>
+          Unignore
+        </Button>
+      ) : (
+        <Button sx={{ flex: 1 }} onClick={() => ignore(t)}>
+          Ignore
+        </Button>
+      )}
+    </Stack>
   );
 }

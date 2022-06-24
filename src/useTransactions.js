@@ -50,8 +50,16 @@ function useTransactions() {
     ]);
   }
 
+  function makeArray(x) {
+    if (!Array.isArray(x)) {
+      return [x];
+    }
+
+    return x;
+  }
+
   function ignore(newIgnored) {
-    newIgnored = newIgnored.map((t) => {
+    newIgnored = makeArray(newIgnored).map((t) => {
       return {
         ...t,
         ignored: true,
@@ -62,7 +70,7 @@ function useTransactions() {
   }
 
   function unignore(newUnignored) {
-    newUnignored = newUnignored.map((t) => {
+    newUnignored = makeArray(newUnignored).map((t) => {
       return {
         ...t,
         ignored: false,

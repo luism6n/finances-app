@@ -1,9 +1,14 @@
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { Box, Button, Stack, Tab, TextField, Typography } from "@mui/material";
+import { DesktopDatePicker } from "@mui/x-date-pickers";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import moment from "moment";
 import { useState } from "react";
 import Transactions from "./Transactions";
 import useTransactions from "./useTransactions";
 import Visualization from "./Visualization";
+import * as d3 from "d3";
 
 function App() {
   const [tab, setTab] = useState("1");
@@ -16,10 +21,19 @@ function App() {
     setUnfiltered,
     setOpenFiles,
   } = useTransactions();
-
-  const filtered = unfiltered.filter((t) =>
-    t.memo.toLowerCase().includes(filterMemo)
+  const [filterDate, setFilterDate] = useState(
+    d3.min(unfiltered, (t) => t.date)
   );
+
+  function filter(transactions) {
+    const filtered = transactions
+      .filter((t) => t.memo.toLowerCase().includes(filterMemo))
+      .filter((t) => t.date > filterDate);
+
+    return filtered;
+  }
+
+  const filtered = filter(unfiltered);
 
   function ignoreSelected() {
     ignore(filtered);
@@ -30,13 +44,37 @@ function App() {
   }
 
   return (
-    <Stack sx={{ height: "98vh", padding: "1vh" }}>
+    <Stack
+      sx={{ margin: "auto", height: "98vh", padding: "1vh", maxWidth: 1200 }}
+    >
       <Typography variant="h2">Finances</Typography>
-      <TextField
-        value={filterMemo}
-        onChange={(e) => setFilterMemo(e.target.value)}
-        label="filter memo"
-      />
+
+      <Stack sx={{ flexDirection: "row" }}>
+        <TextField
+          sx={{ flex: 1, p: 1 }}
+          variant="filled"
+          size="small"
+          value={filterMemo}
+          onChange={(e) => setFilterMemo(e.target.value)}
+          label="filter memo"
+        />
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <DesktopDatePicker
+            label="filter date"
+            inputFormat="dd/MM/yyyy"
+            value={filterDate}
+            onChange={(d) => setFilterDate(moment(d))}
+            renderInput={(params) => (
+              <TextField
+                sx={{ flex: 1, p: 1 }}
+                variant="filled"
+                size="small"
+                {...params}
+              />
+            )}
+          />
+        </LocalizationProvider>
+      </Stack>
       <Button onClick={ignoreSelected}>Ignore selected</Button>
       <Button onClick={unignoreSelected}>Unignore selected</Button>
       <TabContext value={tab}>
@@ -49,10 +87,7 @@ function App() {
             <Tab label="Visualization" value="2" />
           </TabList>
         </Box>
-        <TabPanel
-          sx={{ overflow: "hidden", height: "100%", overflowY: "scroll" }}
-          value="1"
-        >
+        <TabPanel sx={{ overflow: "hidden", height: "100%", p: 0 }} value="1">
           <Transactions
             transactions={filtered}
             ignore={ignore}
@@ -62,8 +97,8 @@ function App() {
           />
         </TabPanel>
         <TabPanel sx={{ overflow: "hidden", height: "100%" }} value="2">
-          {transactions.length > 0 ? (
-            <Visualization transactions={transactions} />
+          {filter(transactions).length > 0 ? (
+            <Visualization transactions={filter(transactions)} />
           ) : (
             "Select at least one transaction"
           )}

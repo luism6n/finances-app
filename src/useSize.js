@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 
 function useSize() {
-  const [width, setWidth] = useState(null);
-  const [height, setHeight] = useState(null);
+  const [width, setWidth] = useState(0);
+  const [height, setHeight] = useState(0);
   const ref = useRef();
 
   useEffect(() => {

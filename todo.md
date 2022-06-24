@@ -4,10 +4,11 @@
 - click to see expenses in that month
 - categories
 - transaction file format
-- filter by date
+- filter by max date
 
 # Done
 
+- filter by min date
 - optimize ingore/unignore selected buttons
 - origin file to transactions
 - filter by name
