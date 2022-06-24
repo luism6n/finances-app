@@ -21,14 +21,18 @@ function App() {
     setUnfiltered,
     setOpenFiles,
   } = useTransactions();
-  const [filterDate, setFilterDate] = useState(
+  const [filterMinDate, setFilterMinDate] = useState(
     d3.min(unfiltered, (t) => t.date)
+  );
+  const [filterMaxDate, setFilterMaxDate] = useState(
+    d3.max(unfiltered, (t) => t.date)
   );
 
   function filter(transactions) {
     const filtered = transactions
       .filter((t) => t.memo.toLowerCase().includes(filterMemo))
-      .filter((t) => t.date > filterDate);
+      .filter((t) => t.date >= filterMinDate)
+      .filter((t) => t.date <= filterMaxDate);
 
     return filtered;
   }
@@ -43,6 +47,11 @@ function App() {
     unignore(filtered);
   }
 
+  function selectOnly() {
+    ignore(unfiltered);
+    unignore(filtered);
+  }
+
   return (
     <Stack
       sx={{ margin: "auto", height: "98vh", padding: "1vh", maxWidth: 1200 }}
@@ -51,7 +60,7 @@ function App() {
 
       <Stack sx={{ flexDirection: "row" }}>
         <TextField
-          sx={{ flex: 1, p: 1 }}
+          sx={{ flex: 2, p: 1 }}
           variant="filled"
           size="small"
           value={filterMemo}
@@ -60,10 +69,24 @@ function App() {
         />
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <DesktopDatePicker
-            label="filter date"
+            label="min date"
             inputFormat="dd/MM/yyyy"
-            value={filterDate}
-            onChange={(d) => setFilterDate(moment(d))}
+            value={filterMinDate}
+            onChange={(d) => setFilterMinDate(moment(d))}
+            renderInput={(params) => (
+              <TextField
+                sx={{ flex: 1, p: 1 }}
+                variant="filled"
+                size="small"
+                {...params}
+              />
+            )}
+          />
+          <DesktopDatePicker
+            label="max date"
+            inputFormat="dd/MM/yyyy"
+            value={filterMaxDate}
+            onChange={(d) => setFilterMaxDate(moment(d))}
             renderInput={(params) => (
               <TextField
                 sx={{ flex: 1, p: 1 }}
@@ -75,8 +98,11 @@ function App() {
           />
         </LocalizationProvider>
       </Stack>
-      <Button onClick={ignoreSelected}>Ignore selected</Button>
-      <Button onClick={unignoreSelected}>Unignore selected</Button>
+      <Stack sx={{ flexDirection: "row", justifyContent: "right" }}>
+        <Button onClick={ignoreSelected}>Ignore selected</Button>
+        <Button onClick={unignoreSelected}>Unignore selected</Button>
+        <Button onClick={selectOnly}>Select these only</Button>
+      </Stack>
       <TabContext value={tab}>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
           <TabList
