@@ -3,11 +3,12 @@
 - brush to select date range
 - click to see expenses in that month
 - categories
-- transaction file format
-- filter by max date
-
+- evolution of each memo/category
+- important date markers
 # Done
 
+- filter by max date
+- transaction file format
 - filter by min date
 - optimize ingore/unignore selected buttons
 - origin file to transactions
