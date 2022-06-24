@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
-import useTransactions from "./useTransactions";
 import * as d3 from "d3";
 import useSize from "./useSize";
 import { Stack, Tooltip, Typography } from "@mui/material";
+import getTransactionsVsDateAxes from "./axes";
 
 export default function Visualization({ transactions }) {
   const { ref, height, width } = useSize();
@@ -34,43 +34,14 @@ export default function Visualization({ transactions }) {
 
   console.log({ expenses, income, net });
 
-  const yDomain = [
-    d3.min([...expenses.values(), 0]),
-    d3.max([...income.values(), 0]),
-  ];
-  const yScale = d3
-    .scaleLinear()
-    .domain(yDomain)
-    .range([height - margin.b, margin.t])
-    .nice();
-  const yAxis = d3.axisLeft(yScale);
-
-  const xLimits = d3.extent(transactions, (t) => t.date);
-  let currentDate = xLimits[0].clone().startOf("month");
-  let xDomain = [currentDate.format("YY/MM")];
-  while (currentDate < xLimits[1]) {
-    currentDate.add(1, "month");
-    xDomain.push(currentDate.format("YY/MM"));
-  }
-  const xScale = d3
-    .scaleBand()
-    .domain(xDomain)
-    .range([margin.l, width - margin.r])
-    .paddingOuter(0.1)
-    .paddingInner(0.1);
-
-  const xTicks = [
-    xDomain[0],
-    ...xDomain.filter((d, i) => {
-      return (
-        i !== 0 &&
-        i !== xDomain.length - 1 &&
-        i % Math.floor(xDomain.length / 8) === 0
-      );
-    }),
-    xDomain[xDomain.length - 1],
-  ];
-  const xAxis = d3.axisBottom(xScale).tickValues(xTicks);
+  const { xDomain, xAxis, xScale, yDomain, yAxis, yScale } =
+    getTransactionsVsDateAxes(
+      [d3.min([...expenses.values(), 0]), d3.max([...income.values(), 0])],
+      d3.extent(transactions, (t) => t.date),
+      width,
+      height,
+      margin
+    );
 
   const lineAtZero = d3.line()([
     [margin.l, yScale(0)],

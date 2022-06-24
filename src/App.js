@@ -9,6 +9,7 @@ import Transactions from "./Transactions";
 import useTransactions from "./useTransactions";
 import Visualization from "./Visualization";
 import * as d3 from "d3";
+import Evolution from "./Evolution";
 
 function App() {
   const [tab, setTab] = useState("1");
@@ -111,6 +112,7 @@ function App() {
           >
             <Tab label="Transactions" value="1" />
             <Tab label="Visualization" value="2" />
+            <Tab label="Evolution" value="3" />
           </TabList>
         </Box>
         <TabPanel sx={{ overflow: "hidden", height: "100%", p: 0 }} value="1">
@@ -125,6 +127,13 @@ function App() {
         <TabPanel sx={{ overflow: "hidden", height: "100%" }} value="2">
           {filter(transactions).length > 0 ? (
             <Visualization transactions={filter(transactions)} />
+          ) : (
+            "Select at least one transaction"
+          )}
+        </TabPanel>
+        <TabPanel sx={{ overflow: "hidden", height: "100%" }} value="3">
+          {filter(transactions).length > 0 ? (
+            <Evolution transactions={filter(transactions)} />
           ) : (
             "Select at least one transaction"
           )}
