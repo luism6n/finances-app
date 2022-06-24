@@ -5,10 +5,10 @@
 - categories
 - transaction file format
 - filter by date
-- optimize ingore/unignore selected buttons
 
 # Done
 
+- optimize ingore/unignore selected buttons
 - origin file to transactions
 - filter by name
 - ignore flag to transactions

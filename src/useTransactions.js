@@ -41,18 +41,35 @@ function useTransactions() {
     _setUnfiltered(t);
   }
 
-  function ignore(t) {
+  function replaceInUnfiltered(newTransactions) {
+    const newIgnoredIds = new Set(newTransactions.map((t) => t.id));
+
     setUnfiltered((u) => [
-      ...u.filter((tt) => tt.id !== t.id),
-      { ...t, ignored: true },
+      ...u.filter((tt) => !newIgnoredIds.has(tt.id)),
+      ...newTransactions,
     ]);
   }
 
-  function unignore(t) {
-    setUnfiltered((u) => [
-      ...u.filter((tt) => tt.id !== t.id),
-      { ...t, ignored: false },
-    ]);
+  function ignore(newIgnored) {
+    newIgnored = newIgnored.map((t) => {
+      return {
+        ...t,
+        ignored: true,
+      };
+    });
+
+    replaceInUnfiltered(newIgnored);
+  }
+
+  function unignore(newUnignored) {
+    newUnignored = newUnignored.map((t) => {
+      return {
+        ...t,
+        ignored: false,
+      };
+    });
+
+    replaceInUnfiltered(newUnignored);
   }
 
   let transactions = unfiltered.filter((t) => !t.ignored);

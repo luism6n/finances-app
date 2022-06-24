@@ -22,15 +22,11 @@ function App() {
   );
 
   function ignoreSelected() {
-    for (let t of filtered) {
-      ignore(t);
-    }
+    ignore(filtered);
   }
 
   function unignoreSelected() {
-    for (let t of filtered) {
-      unignore(t);
-    }
+    unignore(filtered);
   }
 
   return (
