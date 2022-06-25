@@ -144,7 +144,7 @@ export default function Visualization({ transactions }) {
                   y={yScale(d[1])}
                   height={Math.abs(yScale(0) - yScale(d[1]))}
                   width={xScale.bandwidth() / 3}
-                  style={{ fill: "green" }}
+                  style={{ fill: "#b3de69" }}
                 ></rect>
               </Tooltip>
             );
@@ -159,7 +159,7 @@ export default function Visualization({ transactions }) {
                   y={yScale(0)}
                   height={Math.abs(yScale(0) - yScale(d[1]))}
                   width={xScale.bandwidth() / 3}
-                  style={{ fill: "red" }}
+                  style={{ fill: "#fb8072" }}
                 ></rect>
               </Tooltip>
             );
@@ -174,7 +174,7 @@ export default function Visualization({ transactions }) {
                   y={Math.min(yScale(0), yScale(d[1]))}
                   height={Math.abs(yScale(0) - yScale(d[1]))}
                   width={xScale.bandwidth() / 3}
-                  style={{ fill: "blue" }}
+                  style={{ fill: "#80b1d3" }}
                 ></rect>
               </Tooltip>
             );
