@@ -44,8 +44,6 @@ export default function Evolution({ transactions }) {
     })
   );
 
-  console.log(maxY);
-
   const top10Memos = Array.from(byMemo.keys()).sort(sortMemoKeys).slice(0, 10);
 
   const { xDomain, xAxis, xScale, yDomain, yAxis, yScale } =
@@ -102,7 +100,6 @@ export default function Evolution({ transactions }) {
       ]);
 
       // const points = Array.from(t.entries());
-      console.log({ points });
       const lineGenerator = d3
         .line()
         .defined((d) => typeof d[1] !== "undefined")
@@ -110,7 +107,6 @@ export default function Evolution({ transactions }) {
         .y((d) => yScale(d[1]));
 
       const pathData = lineGenerator(points);
-      console.log({ pathData });
       d3.select("#id" + i + ">g.lines")
         .selectAll("path")
         .data([pathData])

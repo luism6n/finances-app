@@ -3,7 +3,7 @@ import { useState } from "react";
 
 function useTransactions() {
   const [openFiles, setOpenFiles] = useState([]);
-  const [unfiltered, _setUnfiltered] = useState(
+  const [unfiltered, _setUnfiltered] = useState(() =>
     (
       JSON.parse(window.localStorage.getItem("unfiltered")) || [
         {
@@ -81,7 +81,6 @@ function useTransactions() {
   }
 
   let transactions = unfiltered.filter((t) => !t.ignored);
-  console.log(transactions);
 
   return {
     unfiltered,

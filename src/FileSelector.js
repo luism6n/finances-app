@@ -77,7 +77,6 @@ export default function FileSelector({
         format: selectedFilesFormat,
         numTransactions: fileTransactions.length,
       };
-      console.log("file loaded:", newFile);
 
       newFiles.push(newFile);
       newTransactions = newTransactions
@@ -85,7 +84,6 @@ export default function FileSelector({
         .filter((t) => !Number.isNaN(t.amount));
     }
 
-    console.log("new transactions:", newTransactions);
     if (erasePrevious) {
       setOpenFiles(newFiles);
       setUnfiltered(newTransactions);

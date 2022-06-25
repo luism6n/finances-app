@@ -32,8 +32,6 @@ export default function Visualization({ transactions }) {
     (t) => t.date.format("YY/MM")
   );
 
-  console.log({ expenses, income, net });
-
   const { xDomain, xAxis, xScale, yDomain, yAxis, yScale } =
     getTransactionsVsDateAxes(
       [d3.min([...expenses.values(), 0]), d3.max([...income.values(), 0])],
