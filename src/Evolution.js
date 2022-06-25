@@ -19,7 +19,7 @@ export default function Evolution({ transactions }) {
 
   const byMemo = d3.rollup(
     transactions,
-    (g) => d3.sum(g, (t) => t.amount),
+    (g) => d3.sum(g, (t) => -t.amount),
     (t) => t.memo,
     (t) => t.date.startOf("month")
   );
@@ -106,7 +106,7 @@ export default function Evolution({ transactions }) {
       const lineGenerator = d3
         .line()
         .defined((d) => typeof d[1] !== "undefined")
-        .x((d) => xScale(d[0]))
+        .x((d) => xScale(d[0]) + xScale.step() / 2)
         .y((d) => yScale(d[1]));
 
       const pathData = lineGenerator(points);
@@ -127,7 +127,7 @@ export default function Evolution({ transactions }) {
         .data(points.filter((d) => typeof d[1] !== "undefined"))
         .join("circle")
         .attr("cx", (d) => {
-          return xScale(d[0]);
+          return xScale(d[0]) + xScale.step() / 2;
         })
         .attr("cy", (d) => {
           return yScale(d[1]);

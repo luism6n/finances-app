@@ -5,6 +5,11 @@
 - categories
 - evolution of each memo/category
 - important date markers
+- duplicate detection
+- **named filters**
+- sorting
+- add integration with nubank API: https://github.com/Astrocoders/nubank-api
+
 # Done
 
 - filter by max date
