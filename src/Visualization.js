@@ -62,21 +62,21 @@ export default function Visualization({ transactions }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transactions, width, height]);
 
+  const biggestExpensesByMemo = d3.rollup(
+    transactions.filter((t) => t.amount < 0),
+    (g) => d3.sum(g, (d) => -d.amount),
+    (d) => d.date.format("YY/MM"),
+    (d) => d.memo
+  );
   function expensesTitle(yearMonth) {
-    const biggestExpenses = d3.rollup(
-      transactions
-        .filter((t) => t.amount < 0)
-        .filter((t) => t.date.format("YY/MM") === yearMonth),
-      (g) => d3.sum(g, (d) => -d.amount),
-      (d) => d.memo
-    );
-
-    let total = d3.sum(biggestExpenses.values());
+    const biggestExpensesThisMonth = biggestExpensesByMemo.get(yearMonth);
+    let total = d3.sum(biggestExpensesThisMonth.entries(), ([d, v]) => v);
+    // console.log({ total, biggestExpensesThisMonth });
 
     return (
       <Stack max-height="100%">
         <Typography>Expenses: {total}</Typography>
-        {Array.from(biggestExpenses.entries())
+        {Array.from(biggestExpensesThisMonth.entries())
           .sort((d1, d2) => d2[1] - d1[1])
           .slice(0, 10)
           .map((d) => {
@@ -112,17 +112,18 @@ export default function Visualization({ transactions }) {
     );
   }
 
+  const netByMonth = d3.rollup(
+    transactions,
+    (g) => d3.sum(g, (d) => d.amount),
+    (d) => d.date.format("YY/MM")
+  );
   function netTitle(yearMonth) {
-    const net = d3.sum(
-      transactions
-        .filter((t) => t.date.format("YY/MM") === yearMonth)
-        .map((d) => d.amount)
-    );
+    const netThisMonth = netByMonth.get(yearMonth);
 
     return (
       <Stack>
         <Typography>Net</Typography>
-        <Typography variant="body2">Total: {net}</Typography>
+        <Typography variant="body2">Total: {netThisMonth}</Typography>
       </Stack>
     );
   }
