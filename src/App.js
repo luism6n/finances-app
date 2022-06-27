@@ -37,6 +37,7 @@ function App() {
     text: "",
     minDate: d3.min(unfiltered, (t) => t.date),
     maxDate: d3.max(unfiltered, (t) => t.date),
+    enabled: true,
   });
 
   function ignoreCurrent() {
