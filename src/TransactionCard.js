@@ -35,6 +35,9 @@ export default function TransactionCard({ index, t, ignore, unignore }) {
       <Typography color={color} sx={{ textDecoration, flex: 1 }}>
         {t.date.format("DD/MM/YYYY")}
       </Typography>
+      <Typography color={color} sx={{ textDecoration, flex: 1 }}>
+        {t.categ}
+      </Typography>
       <Typography color={color} sx={{ textDecoration, flex: 4 }}>
         {t.memo}
       </Typography>

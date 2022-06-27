@@ -6,9 +6,9 @@ import { Stack, TextField, Typography } from "@mui/material";
 import useSize from "./useSize";
 import moment from "moment";
 
-export default function Evolution({ transactions }) {
-  const [mousedOverMemo, setMousedOverMemo] = useState("");
-  const [mousedOverMemoAnnotation, setMousedOverMemoAnnotation] = useState("");
+export default function Evolution({ groupBy, transactions }) {
+  const [mousedOverKey, setMousedOverKey] = useState("");
+  const [mousedOverKeyAnnotation, setMousedOverKeyAnnotation] = useState("");
   const { ref, height, width } = useSize();
   const margin = {
     r: 50,
@@ -17,15 +17,26 @@ export default function Evolution({ transactions }) {
     b: 50,
   };
 
-  const byMemo = d3.rollup(
+  function groupByKey(t) {
+    switch (groupBy) {
+      case "memo":
+        return t.memo;
+      case "category":
+        return t.categ;
+      default:
+        console.error("unknown groupBy", groupBy);
+    }
+  }
+
+  const byKey = d3.rollup(
     transactions,
     (g) => d3.sum(g, (t) => -t.amount),
-    (t) => t.memo,
+    (t) => groupByKey(t),
     (t) => t.date.startOf("month")
   );
 
   let maxY = d3.max(
-    Array.from(byMemo, ([memo, dates]) => {
+    Array.from(byKey, ([memo, dates]) => {
       return d3.max(
         Array.from(dates, ([date, value]) => {
           return value;
@@ -35,7 +46,7 @@ export default function Evolution({ transactions }) {
   );
 
   let minY = d3.min(
-    Array.from(byMemo, ([memo, dates]) => {
+    Array.from(byKey, ([memo, dates]) => {
       return d3.min(
         Array.from(dates, ([date, value]) => {
           return value;
@@ -44,7 +55,7 @@ export default function Evolution({ transactions }) {
     })
   );
 
-  const top10Memos = Array.from(byMemo.keys()).sort(sortMemoKeys).slice(0, 10);
+  const top10Memos = Array.from(byKey.keys()).sort(sortMemoKeys).slice(0, 10);
 
   const { xDomain, xAxis, xScale, yDomain, yAxis, yScale } =
     getTransactionsVsDateAxes(
@@ -92,7 +103,7 @@ export default function Evolution({ transactions }) {
 
     const keys = top10Memos;
     for (let i = 0; i < keys.length; i++) {
-      let t = byMemo.get(keys[i]);
+      let t = byKey.get(keys[i]);
 
       const points = xDomain.map((d) => [
         d,
@@ -134,8 +145,8 @@ export default function Evolution({ transactions }) {
         .attr("r", 5)
         .on("mouseover", (e) => {
           d3.select(e.srcElement).attr("r", 10);
-          setMousedOverMemo(keys[i]);
-          setMousedOverMemoAnnotation(e.srcElement.__data__[0]);
+          setMousedOverKey(keys[i]);
+          setMousedOverKeyAnnotation(e.srcElement.__data__[0]);
         })
         .on("mouseout", (e) => {
           d3.select(e.srcElement).attr("r", 5);
@@ -147,15 +158,15 @@ export default function Evolution({ transactions }) {
 
   function sortMemoKeys(k1, k2) {
     return (
-      Math.abs(d3.sum(byMemo.get(k2).values())) -
-      Math.abs(d3.sum(byMemo.get(k1).values()))
+      Math.abs(d3.sum(byKey.get(k2).values())) -
+      Math.abs(d3.sum(byKey.get(k1).values()))
     );
   }
 
   return (
     <Stack sx={{ flex: 1, height: "100%" }} ref={ref}>
-      <Typography align="center" height={20} color={colorScale(mousedOverMemo)}>
-        <strong>{mousedOverMemo}</strong> {mousedOverMemoAnnotation}
+      <Typography align="center" height={20} color={colorScale(mousedOverKey)}>
+        <strong>{mousedOverKey}</strong> {mousedOverKeyAnnotation}
       </Typography>
       <svg height="100%" width="100%" id="container">
         <g className="xAxis"></g>

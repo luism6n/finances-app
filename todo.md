@@ -5,6 +5,7 @@
 - duplicate detection
 - sorting
 - add integration with nubank API: https://github.com/Astrocoders/nubank-api
+- rename memo to description
 - brush to select date range
 - click to see expenses in that month
 - important date markers

@@ -4,7 +4,7 @@ import useSize from "./useSize";
 import { Stack, Tooltip, Typography } from "@mui/material";
 import getTransactionsVsDateAxes from "./axes";
 
-export default function Visualization({ transactions }) {
+export default function Visualization({ groupBy, transactions }) {
   const { ref, height, width } = useSize();
 
   const margin = {
@@ -62,11 +62,22 @@ export default function Visualization({ transactions }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transactions, width, height]);
 
+  function groupByKey(t) {
+    switch (groupBy) {
+      case "memo":
+        return t.memo;
+      case "category":
+        return t.categ;
+      default:
+        console.error("unknown groupBy", groupBy);
+    }
+  }
+
   const biggestExpensesByMemo = d3.rollup(
     transactions.filter((t) => t.amount < 0),
     (g) => d3.sum(g, (d) => -d.amount),
     (d) => d.date.format("YY/MM"),
-    (d) => d.memo
+    (d) => groupByKey(d)
   );
   function expensesTitle(yearMonth) {
     const biggestExpensesThisMonth = biggestExpensesByMemo.get(yearMonth);

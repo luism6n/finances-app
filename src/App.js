@@ -1,5 +1,17 @@
 import { TabContext, TabList, TabPanel } from "@mui/lab";
-import { Box, Button, Stack, Tab, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  FormControl,
+  FormControlLabel,
+  FormLabel,
+  Radio,
+  RadioGroup,
+  Stack,
+  Tab,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { DesktopDatePicker } from "@mui/x-date-pickers";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
@@ -13,7 +25,8 @@ import Evolution from "./Evolution";
 
 function App() {
   const [tab, setTab] = useState("1");
-  const [filterMemo, setFilterMemo] = useState("");
+  const [filterText, setfilterText] = useState("");
+  const [groupBy, setGroupBy] = useState("memo");
   const {
     transactions,
     unfiltered,
@@ -31,7 +44,11 @@ function App() {
 
   function filter(transactions) {
     const filtered = transactions
-      .filter((t) => t.memo.toLowerCase().includes(filterMemo))
+      .filter(
+        (t) =>
+          t.memo.toLowerCase().includes(filterText) ||
+          t.categ.toLowerCase().includes(filterText)
+      )
       .filter((t) => t.date >= filterMinDate)
       .filter((t) => t.date <= filterMaxDate);
 
@@ -64,8 +81,8 @@ function App() {
           sx={{ flex: 2, p: 1 }}
           variant="filled"
           size="small"
-          value={filterMemo}
-          onChange={(e) => setFilterMemo(e.target.value)}
+          value={filterText}
+          onChange={(e) => setfilterText(e.target.value)}
           label="filter memo"
         />
         <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -99,10 +116,34 @@ function App() {
           />
         </LocalizationProvider>
       </Stack>
-      <Stack sx={{ flexDirection: "row", justifyContent: "right" }}>
-        <Button onClick={ignoreSelected}>Ignore selected</Button>
-        <Button onClick={unignoreSelected}>Unignore selected</Button>
-        <Button onClick={selectOnly}>Select these only</Button>
+      <Stack
+        sx={{
+          width: "100%",
+          flexDirection: "row",
+          justifyContent: "space-between",
+        }}
+      >
+        <FormControl component="fieldset">
+          <FormLabel component="legend">Group By</FormLabel>
+          <RadioGroup
+            aria-label="groupby"
+            name="groupby"
+            value={groupBy}
+            onChange={(e) => setGroupBy(e.target.value)}
+          >
+            <FormControlLabel value="memo" control={<Radio />} label="memo" />
+            <FormControlLabel
+              value="category"
+              control={<Radio />}
+              label="category"
+            />
+          </RadioGroup>
+        </FormControl>
+        <Stack sx={{ flexDirection: "row", justifyContent: "right" }}>
+          <Button onClick={ignoreSelected}>Ignore selected</Button>
+          <Button onClick={unignoreSelected}>Unignore selected</Button>
+          <Button onClick={selectOnly}>Select these only</Button>
+        </Stack>
       </Stack>
       <TabContext value={tab}>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
@@ -126,14 +167,17 @@ function App() {
         </TabPanel>
         <TabPanel sx={{ overflow: "hidden", height: "100%" }} value="2">
           {filter(transactions).length > 0 ? (
-            <Visualization transactions={filter(transactions)} />
+            <Visualization
+              groupBy={groupBy}
+              transactions={filter(transactions)}
+            />
           ) : (
             "Select at least one transaction"
           )}
         </TabPanel>
         <TabPanel sx={{ overflow: "hidden", height: "100%" }} value="3">
           {filter(transactions).length > 0 ? (
-            <Evolution transactions={filter(transactions)} />
+            <Evolution groupBy={groupBy} transactions={filter(transactions)} />
           ) : (
             "Select at least one transaction"
           )}
