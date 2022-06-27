@@ -1,6 +1,13 @@
-import { Button, Card, CardContent, Stack, Typography } from "@mui/material";
+import {
+  Button,
+  Card,
+  CardContent,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { Box } from "@mui/system";
-import React from "react";
+import React, { useState } from "react";
 
 function formatMoney(s) {
   var formatter = new Intl.NumberFormat("en-US", {
@@ -11,7 +18,14 @@ function formatMoney(s) {
   return formatter.format(s);
 }
 
-export default function TransactionCard({ index, t, ignore, unignore }) {
+export default function TransactionCard({
+  index,
+  t,
+  ignore,
+  unignore,
+  setCategory,
+}) {
+  const [categ, setCateg] = useState(t.categ);
   if (!t.date) console.warn(t);
 
   let color = "text.primary";
@@ -27,6 +41,7 @@ export default function TransactionCard({ index, t, ignore, unignore }) {
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
+        alignContent: "center",
       }}
     >
       <Typography color={color} sx={{ flex: 0.5 }}>
@@ -35,9 +50,15 @@ export default function TransactionCard({ index, t, ignore, unignore }) {
       <Typography color={color} sx={{ textDecoration, flex: 1 }}>
         {t.date.format("DD/MM/YYYY")}
       </Typography>
-      <Typography color={color} sx={{ textDecoration, flex: 1 }}>
-        {t.categ}
-      </Typography>
+      <TextField
+        size="small"
+        value={categ}
+        sx={{ px: 2, py: 1 }}
+        onChange={(e) => setCateg(e.target.value)}
+        onBlur={(e) => setCategory(t, e.target.value)}
+      >
+        {categ}
+      </TextField>
       <Typography color={color} sx={{ textDecoration, flex: 4 }}>
         {t.memo}
       </Typography>

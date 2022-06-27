@@ -22,12 +22,15 @@ import useTransactions from "./useTransactions";
 import Visualization from "./Visualization";
 import * as d3 from "d3";
 import Evolution from "./Evolution";
+import CategorizeDialog from "./CategorizeDialog";
 
 function App() {
   const [tab, setTab] = useState("1");
   const [filterText, setfilterText] = useState("");
   const [groupBy, setGroupBy] = useState("memo");
+  const [openCategorizeDialog, setOpenCategorizeDialog] = useState(false);
   const {
+    setCategory,
     transactions,
     unfiltered,
     ignore,
@@ -143,6 +146,9 @@ function App() {
           <Button onClick={ignoreSelected}>Ignore selected</Button>
           <Button onClick={unignoreSelected}>Unignore selected</Button>
           <Button onClick={selectOnly}>Select these only</Button>
+          <Button onClick={() => setOpenCategorizeDialog(true)}>
+            Categorize these
+          </Button>
         </Stack>
       </Stack>
       <TabContext value={tab}>
@@ -158,6 +164,7 @@ function App() {
         </Box>
         <TabPanel sx={{ overflow: "hidden", height: "100%", p: 0 }} value="1">
           <Transactions
+            setCategory={setCategory}
             transactions={filtered}
             ignore={ignore}
             unignore={unignore}
@@ -183,6 +190,12 @@ function App() {
           )}
         </TabPanel>
       </TabContext>
+
+      <CategorizeDialog
+        open={openCategorizeDialog}
+        setOpen={setOpenCategorizeDialog}
+        setCategory={(c) => setCategory(filtered, c)}
+      ></CategorizeDialog>
     </Stack>
   );
 }

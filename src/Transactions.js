@@ -12,6 +12,7 @@ export default function Transactions({
   unignore,
   setUnfiltered,
   setOpenFiles,
+  setCategory,
 }) {
   const [fileSelectorOpen, setFileSelectorOpen] = useState(false);
   const { ref, width, height } = useSize();
@@ -29,6 +30,7 @@ export default function Transactions({
   const Row = ({ index, style }) => (
     <div style={style}>
       <TransactionCard
+        setCategory={setCategory}
         index={index}
         key={sortedTransactions[index].id}
         t={sortedTransactions[index]}

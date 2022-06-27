@@ -80,9 +80,20 @@ function useTransactions() {
     replaceInUnfiltered(newUnignored);
   }
 
+  function setCategory(t, categ) {
+    t = makeArray(t).map((t) => {
+      return {
+        ...t,
+        categ,
+      };
+    });
+    replaceInUnfiltered(t);
+  }
+
   let transactions = unfiltered.filter((t) => !t.ignored);
 
   return {
+    setCategory,
     unfiltered,
     transactions,
     setUnfiltered,
