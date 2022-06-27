@@ -18,7 +18,7 @@
 - filter by max date
 - transaction file format
 - filter by min date
-- optimize ingore/unignore selected buttons
+- optimize ingore/select selected buttons
 - origin file to transactions
 - filter by name
 - ignore flag to transactions

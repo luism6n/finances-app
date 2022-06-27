@@ -18,7 +18,7 @@ function App() {
     setCategory,
     unfiltered,
     ignore,
-    unignore,
+    select,
     setUnfiltered,
     setOpenFiles,
   } = useTransactions();
@@ -38,17 +38,17 @@ function App() {
     maxDate: d3.max(unfiltered, (t) => t.date),
   });
 
-  function ignoreSelected() {
+  function ignoreCurrent() {
     ignore(current);
   }
 
-  function unignoreSelected() {
-    unignore(current);
+  function selectCurrent() {
+    select(current);
   }
 
   function selectOnly() {
     ignore(unfiltered);
-    unignore(current);
+    select(current);
   }
 
   function openFileSelector() {
@@ -65,8 +65,8 @@ function App() {
         {...{
           groupBy,
           setGroupBy,
-          ignoreSelected,
-          unignoreSelected,
+          ignoreCurrent,
+          selectCurrent,
           selectOnly,
           setOpenCategorizeDialog,
           saveFilter,
@@ -86,7 +86,7 @@ function App() {
             current,
             currentFiltered,
             ignore,
-            unignore,
+            select,
             setUnfiltered,
             setOpenFiles,
             filtered,

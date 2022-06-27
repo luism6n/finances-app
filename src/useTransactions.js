@@ -69,15 +69,15 @@ function useTransactions() {
     replaceInUnfiltered(newIgnored);
   }
 
-  function unignore(newUnignored) {
-    newUnignored = makeArray(newUnignored).map((t) => {
+  function select(newSelected) {
+    newSelected = makeArray(newSelected).map((t) => {
       return {
         ...t,
         ignored: false,
       };
     });
 
-    replaceInUnfiltered(newUnignored);
+    replaceInUnfiltered(newSelected);
   }
 
   function setCategory(t, categ) {
@@ -96,7 +96,7 @@ function useTransactions() {
     setUnfiltered,
     setOpenFiles,
     ignore,
-    unignore,
+    select,
   };
 }
 

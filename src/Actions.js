@@ -14,8 +14,8 @@ import React, { useState } from "react";
 function Actions({
   groupBy,
   setGroupBy,
-  ignoreSelected,
-  unignoreSelected,
+  ignoreCurrent,
+  selectCurrent,
   selectOnly,
   setOpenCategorizeDialog,
   saveFilter,
@@ -57,8 +57,8 @@ function Actions({
         </RadioGroup>
       </FormControl>
       <Stack sx={{ flexDirection: "row", justifyContent: "right" }}>
-        <Button onClick={ignoreSelected}>Ignore selected</Button>
-        <Button onClick={unignoreSelected}>Unignore selected</Button>
+        <Button onClick={ignoreCurrent}>Ignore current</Button>
+        <Button onClick={selectCurrent}>Select current</Button>
         <Button onClick={selectOnly}>Select these only</Button>
         <Button onClick={() => setOpenCategorizeDialog(true)}>
           Categorize these

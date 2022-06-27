@@ -11,7 +11,7 @@ export default function Tabs({
   current,
   currentFiltered,
   ignore,
-  unignore,
+  select,
   setUnfiltered,
   setOpenFiles,
   filtered,
@@ -36,7 +36,7 @@ export default function Tabs({
             setCategory={setCategory}
             transactions={current}
             ignore={ignore}
-            unignore={unignore}
+            select={select}
             setUnfiltered={setUnfiltered}
             setOpenFiles={setOpenFiles}
           />

@@ -7,7 +7,7 @@ import useSize from "./useSize.js";
 export default function Transactions({
   transactions,
   ignore,
-  unignore,
+  select,
   setCategory,
 }) {
   const { ref, width, height } = useSize();
@@ -26,7 +26,7 @@ export default function Transactions({
         key={sortedTransactions[index].id}
         t={sortedTransactions[index]}
         ignore={ignore}
-        unignore={unignore}
+        select={select}
       />
     </div>
   );

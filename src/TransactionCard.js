@@ -22,7 +22,7 @@ export default function TransactionCard({
   index,
   t,
   ignore,
-  unignore,
+  select,
   setCategory,
 }) {
   const [categ, setCateg] = useState(t.categ);
@@ -66,8 +66,8 @@ export default function TransactionCard({
         {formatMoney(t.amount)}
       </Typography>
       {t.ignored ? (
-        <Button sx={{ flex: 1 }} onClick={() => unignore(t)}>
-          Unignore
+        <Button sx={{ flex: 1 }} onClick={() => select(t)}>
+          Select
         </Button>
       ) : (
         <Button sx={{ flex: 1 }} onClick={() => ignore(t)}>
