@@ -16,12 +16,14 @@ export default function useFilters(transactions, initialFilter) {
   }
 
   const current = filter(transactions);
-  let filtered = transactions.filter((t) => !t.ignored);
+  const filtered = transactions.filter((t) => !t.ignored);
+  const currentFiltered = current.filter((t) => !t.ignored);
 
   return {
     filtered,
     current,
     currentFilter,
     setCurrentFilter,
+    currentFiltered,
   };
 }

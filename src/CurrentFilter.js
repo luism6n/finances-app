@@ -4,7 +4,7 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import moment from "moment";
 import React from "react";
 
-export default function CurrentFilter(filter, setFilter) {
+export default function CurrentFilter({ filter, setFilter }) {
   return (
     <Stack sx={{ flexDirection: "row" }}>
       <TextField

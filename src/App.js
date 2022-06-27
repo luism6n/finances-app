@@ -23,26 +23,29 @@ function App() {
   } = useTransactions();
   const [fileSelectorOpen, setFileSelectorOpen] = useState(false);
 
-  const { currentFilter, setCurrentFilter, filtered, current } = useFilters(
-    unfiltered,
-    {
-      text: "",
-      minDate: d3.min(unfiltered, (t) => t.date),
-      maxDate: d3.max(unfiltered, (t) => t.date),
-    }
-  );
+  const {
+    currentFilter,
+    setCurrentFilter,
+    filtered,
+    current,
+    currentFiltered,
+  } = useFilters(unfiltered, {
+    text: "",
+    minDate: d3.min(unfiltered, (t) => t.date),
+    maxDate: d3.max(unfiltered, (t) => t.date),
+  });
 
   function ignoreSelected() {
-    ignore(filtered);
+    ignore(current);
   }
 
   function unignoreSelected() {
-    unignore(filtered);
+    unignore(current);
   }
 
   function selectOnly() {
     ignore(unfiltered);
-    unignore(filtered);
+    unignore(current);
   }
 
   function openFileSelector() {
@@ -72,6 +75,7 @@ function App() {
           {...{
             setCategory,
             current,
+            currentFiltered,
             ignore,
             unignore,
             setUnfiltered,

@@ -9,6 +9,7 @@ export default function Tabs({
   sx,
   setCategory,
   current,
+  currentFiltered,
   ignore,
   unignore,
   setUnfiltered,
@@ -41,15 +42,15 @@ export default function Tabs({
         />
       </TabPanel>
       <TabPanel sx={{ overflow: "hidden", height: "100%" }} value="2">
-        {filtered.length > 0 ? (
-          <Visualization groupBy={groupBy} transactions={filtered} />
+        {currentFiltered.length > 0 ? (
+          <Visualization groupBy={groupBy} transactions={currentFiltered} />
         ) : (
           "Select at least one transaction"
         )}
       </TabPanel>
       <TabPanel sx={{ overflow: "hidden", height: "100%" }} value="3">
-        {filtered.length > 0 ? (
-          <Evolution groupBy={groupBy} transactions={filtered} />
+        {currentFiltered.length > 0 ? (
+          <Evolution groupBy={groupBy} transactions={currentFiltered} />
         ) : (
           "Select at least one transaction"
         )}
