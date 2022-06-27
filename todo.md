@@ -1,17 +1,17 @@
 # Todo
 
-- brush to select date range
-- click to see expenses in that month
 - categories
-- evolution of each memo/category
-- important date markers
-- duplicate detection
 - **named filters**
+- duplicate detection
 - sorting
 - add integration with nubank API: https://github.com/Astrocoders/nubank-api
+- brush to select date range
+- click to see expenses in that month
+- important date markers
 
 # Done
 
+- evolution of each memo/category
 - filter by max date
 - transaction file format
 - filter by min date
