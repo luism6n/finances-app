@@ -24,7 +24,6 @@ function MyFilter({ f, setCurrentFilter }) {
 }
 
 export default function MyFilters({ sx, myFilters, setCurrentFilter }) {
-  console.log(myFilters);
   return (
     <Stack sx={{ ...sx }}>
       <Typography variant="h4">My Filters</Typography>
