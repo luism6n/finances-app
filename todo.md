@@ -1,6 +1,5 @@
 # Todo
 
-- categories
 - **named filters**
 - duplicate detection
 - sorting
@@ -12,6 +11,7 @@
 
 # Done
 
+- categories
 - evolution of each memo/category
 - filter by max date
 - transaction file format
