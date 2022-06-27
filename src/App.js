@@ -74,7 +74,7 @@ function App() {
         }}
       />
 
-      <Stack sx={{ flex: 1, flexDirection: "row" }}>
+      <Stack sx={{ overflow: "hidden", flex: 1, flexDirection: "row" }}>
         <MyFilters
           sx={{ flex: 1, margin: 2 }}
           {...{ myFilters, setCurrentFilter }}

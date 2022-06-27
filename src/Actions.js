@@ -29,6 +29,7 @@ function Actions({
       return;
     }
 
+    setCurrentFilterNoNameError("");
     saveFilter({ ...currentFilter, name: filterName, id: nanoid() });
   }
 
@@ -71,6 +72,7 @@ function Actions({
             value={filterName}
             onChange={(e) => setFilterName(e.target.value)}
             label="filter name"
+            error={!!currentFilterNoNameError}
           />
           <Button onClick={validateAndSaveFilter}>Save filter</Button>
         </Stack>

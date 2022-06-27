@@ -13,7 +13,12 @@ function MyFilter({ f, setCurrentFilter }) {
         </Stack>
       }
     >
-      <Chip onClick={() => setCurrentFilter(f)} sx={{ m: 1 }} label={f.name} />
+      <Chip
+        size="small"
+        onClick={() => setCurrentFilter(f)}
+        sx={{ m: 1, p: 1 }}
+        label={f.name}
+      />
     </Tooltip>
   );
 }
@@ -22,9 +27,12 @@ export default function MyFilters({ sx, myFilters, setCurrentFilter }) {
   console.log(myFilters);
   return (
     <Stack sx={{ ...sx }}>
-      {myFilters.map((f) => (
-        <MyFilter setCurrentFilter={setCurrentFilter} key={f.id} f={f} />
-      ))}
+      <Typography variant="h4">My Filters</Typography>
+      <Stack sx={{ overflowY: "scroll" }}>
+        {myFilters.map((f) => (
+          <MyFilter setCurrentFilter={setCurrentFilter} key={f.id} f={f} />
+        ))}
+      </Stack>
     </Stack>
   );
 }
