@@ -23,42 +23,30 @@ import Visualization from "./Visualization";
 import * as d3 from "d3";
 import Evolution from "./Evolution";
 import CategorizeDialog from "./CategorizeDialog";
+import CurrentFilter from "./CurrentFilter";
+import useFilters from "./useFilters";
 
 function App() {
   const [tab, setTab] = useState("1");
-  const [filterText, setfilterText] = useState("");
   const [groupBy, setGroupBy] = useState("memo");
   const [openCategorizeDialog, setOpenCategorizeDialog] = useState(false);
   const {
     setCategory,
-    transactions,
     unfiltered,
     ignore,
     unignore,
     setUnfiltered,
     setOpenFiles,
   } = useTransactions();
-  const [filterMinDate, setFilterMinDate] = useState(
-    d3.min(unfiltered, (t) => t.date)
+
+  const { currentFilter, setCurrentFilter, filtered, current } = useFilters(
+    unfiltered,
+    {
+      text: "",
+      minDate: d3.min(unfiltered, (t) => t.date),
+      maxDate: d3.max(unfiltered, (t) => t.date),
+    }
   );
-  const [filterMaxDate, setFilterMaxDate] = useState(
-    d3.max(unfiltered, (t) => t.date)
-  );
-
-  function filter(transactions) {
-    const filtered = transactions
-      .filter(
-        (t) =>
-          t.memo.toLowerCase().includes(filterText) ||
-          t.categ.toLowerCase().includes(filterText)
-      )
-      .filter((t) => t.date >= filterMinDate)
-      .filter((t) => t.date <= filterMaxDate);
-
-    return filtered;
-  }
-
-  const filtered = filter(unfiltered);
 
   function ignoreSelected() {
     ignore(filtered);
@@ -78,47 +66,7 @@ function App() {
       sx={{ margin: "auto", height: "98vh", padding: "1vh", maxWidth: 1200 }}
     >
       <Typography variant="h2">Finances</Typography>
-
-      <Stack sx={{ flexDirection: "row" }}>
-        <TextField
-          sx={{ flex: 2, p: 1 }}
-          variant="filled"
-          size="small"
-          value={filterText}
-          onChange={(e) => setfilterText(e.target.value)}
-          label="filter memo"
-        />
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <DesktopDatePicker
-            label="min date"
-            inputFormat="dd/MM/yyyy"
-            value={filterMinDate}
-            onChange={(d) => setFilterMinDate(moment(d))}
-            renderInput={(params) => (
-              <TextField
-                sx={{ flex: 1, p: 1 }}
-                variant="filled"
-                size="small"
-                {...params}
-              />
-            )}
-          />
-          <DesktopDatePicker
-            label="max date"
-            inputFormat="dd/MM/yyyy"
-            value={filterMaxDate}
-            onChange={(d) => setFilterMaxDate(moment(d))}
-            renderInput={(params) => (
-              <TextField
-                sx={{ flex: 1, p: 1 }}
-                variant="filled"
-                size="small"
-                {...params}
-              />
-            )}
-          />
-        </LocalizationProvider>
-      </Stack>
+      <CurrentFilter filter={currentFilter} setFilter={setCurrentFilter} />
       <Stack
         sx={{
           width: "100%",
@@ -165,7 +113,7 @@ function App() {
         <TabPanel sx={{ overflow: "hidden", height: "100%", p: 0 }} value="1">
           <Transactions
             setCategory={setCategory}
-            transactions={filtered}
+            transactions={current}
             ignore={ignore}
             unignore={unignore}
             setUnfiltered={setUnfiltered}
@@ -173,18 +121,15 @@ function App() {
           />
         </TabPanel>
         <TabPanel sx={{ overflow: "hidden", height: "100%" }} value="2">
-          {filter(transactions).length > 0 ? (
-            <Visualization
-              groupBy={groupBy}
-              transactions={filter(transactions)}
-            />
+          {filtered.length > 0 ? (
+            <Visualization groupBy={groupBy} transactions={filtered} />
           ) : (
             "Select at least one transaction"
           )}
         </TabPanel>
         <TabPanel sx={{ overflow: "hidden", height: "100%" }} value="3">
-          {filter(transactions).length > 0 ? (
-            <Evolution groupBy={groupBy} transactions={filter(transactions)} />
+          {filtered.length > 0 ? (
+            <Evolution groupBy={groupBy} transactions={filtered} />
           ) : (
             "Select at least one transaction"
           )}

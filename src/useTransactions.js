@@ -90,12 +90,9 @@ function useTransactions() {
     replaceInUnfiltered(t);
   }
 
-  let transactions = unfiltered.filter((t) => !t.ignored);
-
   return {
     setCategory,
     unfiltered,
-    transactions,
     setUnfiltered,
     setOpenFiles,
     ignore,
