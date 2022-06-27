@@ -1,7 +1,6 @@
 import { Fab, Stack, Typography } from "@mui/material";
 import { useState } from "react";
 import useTransactions from "./useTransactions";
-import * as d3 from "d3";
 import CategorizeDialog from "./CategorizeDialog";
 import CurrentFilter from "./CurrentFilter";
 import useFilters from "./useFilters";
@@ -15,30 +14,30 @@ function App() {
   const [groupBy, setGroupBy] = useState("memo");
   const [openCategorizeDialog, setOpenCategorizeDialog] = useState(false);
   const {
+    currentFilter,
+    setCurrentFilter,
+    myFilters,
+    saveFilter,
+    toggleFilter,
+    deleteFilter,
+  } = useFilters({
+    memo: "",
+    categ: "",
+    enabled: true,
+  });
+
+  const {
     setCategory,
     unfiltered,
+    current,
+    filtered,
+    currentFiltered,
     ignore,
     select,
     setUnfiltered,
     setOpenFiles,
-  } = useTransactions();
+  } = useTransactions(currentFilter, myFilters);
   const [fileSelectorOpen, setFileSelectorOpen] = useState(false);
-
-  const {
-    currentFilter,
-    setCurrentFilter,
-    filtered,
-    current,
-    currentFiltered,
-    myFilters,
-    saveFilter,
-    toggleFilter,
-  } = useFilters(unfiltered, {
-    text: "",
-    minDate: d3.min(unfiltered, (t) => t.date),
-    maxDate: d3.max(unfiltered, (t) => t.date),
-    enabled: true,
-  });
 
   function ignoreCurrent() {
     ignore(current);
@@ -79,7 +78,7 @@ function App() {
       <Stack sx={{ overflow: "hidden", flex: 1, flexDirection: "row" }}>
         <MyFilters
           sx={{ flex: 1, margin: 2 }}
-          {...{ myFilters, toggleFilter }}
+          {...{ myFilters, toggleFilter, deleteFilter }}
         ></MyFilters>
         <Tabs
           sx={{ flex: 5, margin: 2 }}

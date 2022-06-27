@@ -1,7 +1,7 @@
 import moment from "moment";
 import { useState } from "react";
 
-export default function useFilters(transactions, initialFilter) {
+export default function useFilters(initialFilter) {
   const [currentFilter, setCurrentFilter] = useState(initialFilter);
   const [myFilters, _setMyFilters] = useState(
     (JSON.parse(window.localStorage.getItem("myFilters")) || []).map((f) => {
@@ -13,37 +13,17 @@ export default function useFilters(transactions, initialFilter) {
     })
   );
 
-  function applyFilters(transactions, filters) {
-    let filtered = transactions;
-    for (let f of filters) {
-      if (!f.enabled) {
-        continue;
-      }
-
-      console.log({ f, filtered });
-      filtered = filtered
-        .filter(
-          (t) =>
-            t.memo.toLowerCase().includes(f.text) ||
-            t.categ.toLowerCase().includes(f.text)
-        )
-        .filter((t) => t.date >= f.minDate)
-        .filter((t) => t.date <= f.maxDate);
-    }
-
-    return filtered;
-  }
-
-  const current = applyFilters(transactions, [currentFilter]);
-  const filtered = applyFilters(transactions, myFilters);
-  const currentFiltered = applyFilters(current, myFilters);
-
   function setMyFilters(fs) {
     window.localStorage.setItem("myFilters", JSON.stringify(fs));
     _setMyFilters(fs);
   }
 
   function saveFilter(f) {
+    setCurrentFilter({
+      memo: "",
+      categ: "",
+      enabled: true,
+    });
     setMyFilters([...myFilters, f]);
   }
 
@@ -55,14 +35,16 @@ export default function useFilters(transactions, initialFilter) {
     );
   }
 
+  function deleteFilter(f) {
+    setMyFilters(myFilters.filter((ff) => ff.id !== f.id));
+  }
+
   return {
-    filtered,
-    current,
     currentFilter,
     setCurrentFilter,
-    currentFiltered,
     myFilters,
     saveFilter,
     toggleFilter,
+    deleteFilter,
   };
 }

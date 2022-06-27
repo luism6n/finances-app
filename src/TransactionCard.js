@@ -1,12 +1,4 @@
-import {
-  Button,
-  Card,
-  CardContent,
-  Stack,
-  TextField,
-  Typography,
-} from "@mui/material";
-import { Box } from "@mui/system";
+import { Stack, TextField, Typography } from "@mui/material";
 import React, { useState } from "react";
 
 function formatMoney(s) {
@@ -42,6 +34,7 @@ export default function TransactionCard({
         justifyContent: "space-between",
         alignItems: "center",
         alignContent: "center",
+        color: { color },
       }}
     >
       <Typography color={color} sx={{ flex: 0.5 }}>
@@ -66,13 +59,9 @@ export default function TransactionCard({
         {formatMoney(t.amount)}
       </Typography>
       {t.ignored ? (
-        <Button sx={{ flex: 1 }} onClick={() => select(t)}>
-          Select
-        </Button>
+        <Typography sx={{ flex: 1 }}>⚫</Typography>
       ) : (
-        <Button sx={{ flex: 1 }} onClick={() => ignore(t)}>
-          Ignore
-        </Button>
+        <Typography sx={{ flex: 1 }}>🟢</Typography>
       )}
     </Stack>
   );

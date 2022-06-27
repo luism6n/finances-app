@@ -31,6 +31,7 @@ function Actions({
 
     setCurrentFilterNoNameError("");
     saveFilter({ ...currentFilter, name: filterName, id: nanoid() });
+    setFilterName("");
   }
 
   return (
@@ -58,9 +59,6 @@ function Actions({
         </RadioGroup>
       </FormControl>
       <Stack sx={{ flexDirection: "row", justifyContent: "right" }}>
-        <Button onClick={ignoreCurrent}>Ignore current</Button>
-        <Button onClick={selectCurrent}>Select current</Button>
-        <Button onClick={selectOnly}>Select these only</Button>
         <Button onClick={() => setOpenCategorizeDialog(true)}>
           Categorize these
         </Button>

@@ -1,21 +1,29 @@
 import { Chip, Stack, Tooltip, Typography } from "@mui/material";
-import React, { Fragment } from "react";
+import React from "react";
 
-function MyFilter({ f, toggleFilter }) {
+function MyFilter({ f, toggleFilter, deleteFilter }) {
   return (
     <Tooltip
       placement="right"
       title={
         <Stack>
-          <Typography>Text: {f.text}</Typography>
-          <Typography>Min date: {f.minDate.format()}</Typography>
-          <Typography>Max date: {f.maxDate.format()}</Typography>
+          <Typography>Memo: {f.memo}</Typography>
+          <Typography>categ: {f.categ}</Typography>
+          <Typography>
+            Min date:{" "}
+            {f.minDate && f.minDate.isValid() ? f.minDate.format() : ""}
+          </Typography>
+          <Typography>
+            Max date:{" "}
+            {f.maxDate && f.maxDate.isValid() ? f.maxDate.format() : ""}
+          </Typography>
         </Stack>
       }
     >
       <Chip
         size="small"
         onClick={() => toggleFilter(f)}
+        onDelete={() => deleteFilter(f)}
         variant={f.enabled ? "" : "outlined"}
         sx={{ m: 1, p: 1 }}
         label={f.name}
@@ -24,13 +32,23 @@ function MyFilter({ f, toggleFilter }) {
   );
 }
 
-export default function MyFilters({ sx, myFilters, toggleFilter }) {
+export default function MyFilters({
+  sx,
+  myFilters,
+  toggleFilter,
+  deleteFilter,
+}) {
   return (
     <Stack sx={{ ...sx }}>
       <Typography variant="h4">My Filters</Typography>
       <Stack sx={{ overflowY: "scroll" }}>
         {myFilters.map((f) => (
-          <MyFilter toggleFilter={toggleFilter} key={f.id} f={f} />
+          <MyFilter
+            deleteFilter={deleteFilter}
+            toggleFilter={toggleFilter}
+            key={f.id}
+            f={f}
+          />
         ))}
       </Stack>
     </Stack>

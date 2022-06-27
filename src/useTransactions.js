@@ -1,9 +1,9 @@
 import moment from "moment";
 import { useState } from "react";
 
-function useTransactions() {
+function useTransactions(currentFilter, myFilters) {
   const [openFiles, setOpenFiles] = useState([]);
-  const [unfiltered, _setUnfiltered] = useState(() =>
+  const [_unfiltered, _setUnfiltered] = useState(() =>
     (
       JSON.parse(window.localStorage.getItem("unfiltered")) || [
         {
@@ -90,9 +90,45 @@ function useTransactions() {
     replaceInUnfiltered(t);
   }
 
+  function applyFilters(transactions, filters) {
+    let filtered = transactions;
+    for (let f of filters) {
+      if (!f.enabled) {
+        continue;
+      }
+
+      filtered = filtered
+        .filter((t) => t.memo.toLowerCase().includes(f.memo))
+        .filter((t) => t.categ.toLowerCase().includes(f.categ))
+        .filter((t) =>
+          f.minDate && f.minDate.isValid() ? t.date >= f.minDate : true
+        )
+        .filter((t) =>
+          f.maxDate && f.maxDate.isValid() ? t.date <= f.maxDate : true
+        );
+    }
+
+    return filtered;
+  }
+
+  const filteredIds = new Set(
+    applyFilters(_unfiltered, myFilters).map((t) => t.id)
+  );
+  const unfiltered = _unfiltered.map((t) => ({
+    ...t,
+    ignored: !filteredIds.has(t.id),
+  }));
+  const current = applyFilters(unfiltered, [currentFilter]);
+  const filtered = unfiltered.filter((t) => filteredIds.has(t.id));
+  const currentFiltered = applyFilters(current, myFilters);
+  console.log({ unfiltered, filtered, current });
+
   return {
     setCategory,
     unfiltered,
+    current,
+    filtered,
+    currentFiltered,
     setUnfiltered,
     setOpenFiles,
     ignore,
