@@ -32,14 +32,13 @@ export default function Visualization({ groupBy, transactions }) {
     (t) => t.date.format("YY/MM")
   );
 
-  const { xDomain, xAxis, xScale, yDomain, yAxis, yScale } =
-    getTransactionsVsDateAxes(
-      [d3.min([...expenses.values(), 0]), d3.max([...income.values(), 0])],
-      d3.extent(transactions, (t) => t.date),
-      width,
-      height,
-      margin
-    );
+  const { xAxis, xScale, yAxis, yScale } = getTransactionsVsDateAxes(
+    [d3.min([...expenses.values(), 0]), d3.max([...income.values(), 0])],
+    d3.extent(transactions, (t) => t.date),
+    width,
+    height,
+    margin
+  );
 
   const lineAtZero = d3.line()([
     [margin.l, yScale(0)],
@@ -82,7 +81,6 @@ export default function Visualization({ groupBy, transactions }) {
   function expensesTitle(yearMonth) {
     const biggestExpensesThisMonth = biggestExpensesByMemo.get(yearMonth);
     let total = d3.sum(biggestExpensesThisMonth.entries(), ([d, v]) => v);
-    // console.log({ total, biggestExpensesThisMonth });
 
     return (
       <Stack max-height="100%">

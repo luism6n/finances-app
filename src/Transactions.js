@@ -1,7 +1,5 @@
-import { Add } from "@mui/icons-material";
-import { Box, Fab } from "@mui/material";
-import React, { Fragment, useState } from "react";
-import FileSelector from "./FileSelector.js";
+import { Box } from "@mui/material";
+import React from "react";
 import TransactionCard from "./TransactionCard.js";
 import { FixedSizeList as List } from "react-window";
 import useSize from "./useSize.js";
@@ -10,16 +8,9 @@ export default function Transactions({
   transactions,
   ignore,
   unignore,
-  setUnfiltered,
-  setOpenFiles,
   setCategory,
 }) {
-  const [fileSelectorOpen, setFileSelectorOpen] = useState(false);
   const { ref, width, height } = useSize();
-
-  function openFileSelector() {
-    setFileSelectorOpen(true);
-  }
 
   function orderTransactions(t1, t2) {
     return t1.id.localeCompare(t2.id);
@@ -51,15 +42,6 @@ export default function Transactions({
       >
         {Row}
       </List>
-      <Fab sx={{ position: "absolute", bottom: 25, right: 25 }}>
-        <Add onClick={openFileSelector} />
-      </Fab>
-      <FileSelector
-        open={fileSelectorOpen}
-        setOpen={setFileSelectorOpen}
-        setUnfiltered={setUnfiltered}
-        setOpenFiles={setOpenFiles}
-      ></FileSelector>
     </Box>
   );
 }
