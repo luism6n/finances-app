@@ -1,6 +1,7 @@
 # Todo
 
-- **named filters**
+- separate text into categories and memo in filters
+- create filter pipeline
 - duplicate detection
 - sorting
 - add integration with nubank API: https://github.com/Astrocoders/nubank-api
@@ -11,6 +12,7 @@
 
 # Done
 
+- named filters
 - categories
 - evolution of each memo/category
 - filter by max date

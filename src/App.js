@@ -9,6 +9,7 @@ import Actions from "./Actions";
 import { Add } from "@mui/icons-material";
 import FileSelector from "./FileSelector";
 import Tabs from "./Tabs";
+import MyFilters from "./MyFilters";
 
 function App() {
   const [groupBy, setGroupBy] = useState("memo");
@@ -29,6 +30,8 @@ function App() {
     filtered,
     current,
     currentFiltered,
+    myFilters,
+    saveFilter,
   } = useFilters(unfiltered, {
     text: "",
     minDate: d3.min(unfiltered, (t) => t.date),
@@ -66,12 +69,18 @@ function App() {
           unignoreSelected,
           selectOnly,
           setOpenCategorizeDialog,
+          saveFilter,
+          currentFilter,
         }}
       />
 
-      <Stack sx={{ flex: 1 }}>
+      <Stack sx={{ flex: 1, flexDirection: "row" }}>
+        <MyFilters
+          sx={{ flex: 1, margin: 2 }}
+          {...{ myFilters, setCurrentFilter }}
+        ></MyFilters>
         <Tabs
-          sx={{ flex: 3 }}
+          sx={{ flex: 5, margin: 2 }}
           {...{
             setCategory,
             current,

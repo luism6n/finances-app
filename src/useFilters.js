@@ -2,6 +2,8 @@ import { useState } from "react";
 
 export default function useFilters(transactions, initialFilter) {
   const [currentFilter, setCurrentFilter] = useState(initialFilter);
+  const [myFilters, setMyFilters] = useState([]);
+
   function filter(transactions) {
     const filtered = transactions
       .filter(
@@ -19,11 +21,17 @@ export default function useFilters(transactions, initialFilter) {
   const filtered = transactions.filter((t) => !t.ignored);
   const currentFiltered = current.filter((t) => !t.ignored);
 
+  function saveFilter(f) {
+    setMyFilters([...myFilters, f]);
+  }
+
   return {
     filtered,
     current,
     currentFilter,
     setCurrentFilter,
     currentFiltered,
+    myFilters,
+    saveFilter,
   };
 }
