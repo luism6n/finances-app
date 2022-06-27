@@ -32,6 +32,7 @@ function App() {
     currentFiltered,
     myFilters,
     saveFilter,
+    toggleFilter,
   } = useFilters(unfiltered, {
     text: "",
     minDate: d3.min(unfiltered, (t) => t.date),
@@ -77,7 +78,7 @@ function App() {
       <Stack sx={{ overflow: "hidden", flex: 1, flexDirection: "row" }}>
         <MyFilters
           sx={{ flex: 1, margin: 2 }}
-          {...{ myFilters, setCurrentFilter }}
+          {...{ myFilters, toggleFilter }}
         ></MyFilters>
         <Tabs
           sx={{ flex: 5, margin: 2 }}

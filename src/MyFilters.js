@@ -1,7 +1,7 @@
 import { Chip, Stack, Tooltip, Typography } from "@mui/material";
 import React, { Fragment } from "react";
 
-function MyFilter({ f, setCurrentFilter }) {
+function MyFilter({ f, toggleFilter }) {
   return (
     <Tooltip
       placement="right"
@@ -15,7 +15,8 @@ function MyFilter({ f, setCurrentFilter }) {
     >
       <Chip
         size="small"
-        onClick={() => setCurrentFilter(f)}
+        onClick={() => toggleFilter(f)}
+        variant={f.enabled ? "" : "outlined"}
         sx={{ m: 1, p: 1 }}
         label={f.name}
       />
@@ -23,13 +24,13 @@ function MyFilter({ f, setCurrentFilter }) {
   );
 }
 
-export default function MyFilters({ sx, myFilters, setCurrentFilter }) {
+export default function MyFilters({ sx, myFilters, toggleFilter }) {
   return (
     <Stack sx={{ ...sx }}>
       <Typography variant="h4">My Filters</Typography>
       <Stack sx={{ overflowY: "scroll" }}>
         {myFilters.map((f) => (
-          <MyFilter setCurrentFilter={setCurrentFilter} key={f.id} f={f} />
+          <MyFilter toggleFilter={toggleFilter} key={f.id} f={f} />
         ))}
       </Stack>
     </Stack>

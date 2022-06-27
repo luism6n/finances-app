@@ -13,22 +13,30 @@ export default function useFilters(transactions, initialFilter) {
     })
   );
 
-  function filter(transactions) {
-    const filtered = transactions
-      .filter(
-        (t) =>
-          t.memo.toLowerCase().includes(currentFilter.text) ||
-          t.categ.toLowerCase().includes(currentFilter.text)
-      )
-      .filter((t) => t.date >= currentFilter.minDate)
-      .filter((t) => t.date <= currentFilter.maxDate);
+  function applyFilters(transactions, filters) {
+    let filtered = transactions;
+    for (let f of filters) {
+      if (!f.enabled) {
+        continue;
+      }
+
+      console.log({ f, filtered });
+      filtered = filtered
+        .filter(
+          (t) =>
+            t.memo.toLowerCase().includes(f.text) ||
+            t.categ.toLowerCase().includes(f.text)
+        )
+        .filter((t) => t.date >= f.minDate)
+        .filter((t) => t.date <= f.maxDate);
+    }
 
     return filtered;
   }
 
-  const current = filter(transactions);
-  const filtered = transactions.filter((t) => !t.ignored);
-  const currentFiltered = current.filter((t) => !t.ignored);
+  const current = applyFilters(transactions, [currentFilter]);
+  const filtered = applyFilters(transactions, myFilters);
+  const currentFiltered = applyFilters(current, myFilters);
 
   function setMyFilters(fs) {
     window.localStorage.setItem("myFilters", JSON.stringify(fs));
@@ -39,6 +47,14 @@ export default function useFilters(transactions, initialFilter) {
     setMyFilters([...myFilters, f]);
   }
 
+  function toggleFilter(f) {
+    setMyFilters(
+      myFilters.map((ff) =>
+        ff.id !== f.id ? ff : { ...f, enabled: !f.enabled }
+      )
+    );
+  }
+
   return {
     filtered,
     current,
@@ -47,5 +63,6 @@ export default function useFilters(transactions, initialFilter) {
     currentFiltered,
     myFilters,
     saveFilter,
+    toggleFilter,
   };
 }
