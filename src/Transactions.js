@@ -1,7 +1,20 @@
-import { Box, CircularProgress, Pagination, Stack } from "@mui/material";
+import {
+  Box,
+  CircularProgress,
+  Pagination,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from "@mui/material";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import TransactionCard from "./TransactionCard.js";
 
+function formatMoney(s) {
+  return Number(s).toFixed(2);
+}
 export default function Transactions({
   transactions,
   ignore,
@@ -10,7 +23,6 @@ export default function Transactions({
 }) {
   const ref = useRef();
   const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
   const perPage = 50;
 
   const orderedTransactions = useMemo(
@@ -27,32 +39,70 @@ export default function Transactions({
   );
   console.log({ transactionsInPage });
 
-  useEffect(() => {
-    setLoading(false);
-  }, [page]);
-
   function onPageChange(e, v) {
-    setLoading(true);
     setPage(v);
     ref.current.scrollTo(0, 0);
   }
 
   return (
-    <Stack sx={{ alignItems: "center", width: "100%", height: "100%" }}>
-      <Stack ref={ref} sx={{ flex: 1, width: "100%", overflowY: "scroll" }}>
-        {loading
-          ? null
-          : transactionsInPage.map((t, i) => (
-              <TransactionCard
-                setCategory={setCategory}
-                index={(page - 1) * perPage + i + 1}
-                key={t.id}
-                t={t}
-                ignore={ignore}
-                select={select}
-              />
-            ))}
-      </Stack>
+    <Stack
+      sx={{
+        justifyContent: "space-between",
+        alignItems: "center",
+        width: "100%",
+        height: "100%",
+      }}
+    >
+      <TableContainer ref={ref}>
+        <Table
+          stickyHeader
+          sx={{ minWidth: 650 }}
+          size="small"
+          aria-label="a dense table"
+        >
+          <TableHead>
+            <TableRow>
+              <TableCell align="right">#</TableCell>
+              <TableCell align="left">Date</TableCell>
+              <TableCell align="left">Category</TableCell>
+              <TableCell align="right">Description</TableCell>
+              <TableCell align="right">Amount</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {transactionsInPage.map((t, i) => {
+              let rowColor = t.ignored ? "gray" : "black";
+              return (
+                <TableRow
+                  key={t.id}
+                  sx={{
+                    "&:last-child td, &:last-child th": { border: 0 },
+                  }}
+                >
+                  <TableCell sx={{ color: rowColor }} align="right">
+                    {(page - 1) * perPage + i + 1}
+                  </TableCell>
+                  <TableCell sx={{ color: rowColor }} align="left">
+                    {t.date.format("DD/MM/YYYY")}
+                  </TableCell>
+                  <TableCell sx={{ color: rowColor }} align="left">
+                    {t.categ}
+                  </TableCell>
+                  <TableCell sx={{ color: rowColor }} align="right">
+                    {t.memo}
+                  </TableCell>
+                  <TableCell
+                    sx={{ color: t.amount > 0 ? "darkgreen" : "black" }}
+                    align="right"
+                  >
+                    {formatMoney(t.amount)}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </TableContainer>
       <Pagination
         sx={{ p: 2 }}
         count={Math.ceil(transactions.length / perPage)}
