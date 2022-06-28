@@ -1,4 +1,4 @@
-import { Radio, Stack, TextField, Typography } from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 import React, { useState } from "react";
 
 function formatMoney(s) {
@@ -34,29 +34,17 @@ export default function TransactionCard({
         justifyContent: "space-between",
         alignItems: "center",
         alignContent: "center",
-        color: { color },
+        color,
+        textDecoration,
+        minHeight: 50,
+        paddingX: 3,
       }}
     >
-      <Radio sx={{ flex: 0.5 }} checked={!t.ignored} />
-      <Typography color={color} sx={{ flex: 0.5 }}>
-        {index}
-      </Typography>
-      <Typography color={color} sx={{ textDecoration, flex: 1 }}>
-        {t.date.format("DD/MM/YYYY")}
-      </Typography>
-      <TextField
-        size="small"
-        value={categ}
-        sx={{ px: 2, py: 1 }}
-        onChange={(e) => setCateg(e.target.value)}
-        onBlur={(e) => setCategory(t, e.target.value)}
-      >
-        {categ}
-      </TextField>
-      <Typography color={color} sx={{ textDecoration, flex: 4 }}>
-        {t.memo}
-      </Typography>
-      <Typography align="left" color={color} sx={{ textDecoration, flex: 1 }}>
+      <Typography sx={{ flex: 0.5 }}>{index}</Typography>
+      <Typography sx={{ flex: 1 }}>{t.date.format("DD/MM/YYYY")}</Typography>
+      <Typography sx={{ flex: 1 }}>{t.categ}</Typography>
+      <Typography sx={{ flex: 3 }}>{t.memo}</Typography>
+      <Typography align="right" sx={{ flex: 1 }}>
         {formatMoney(t.amount)}
       </Typography>
     </Stack>

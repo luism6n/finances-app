@@ -3,6 +3,7 @@
 - improve interface
   - add headers to Transactions
   - add create filter dialog
+- separate date fields in filters
 - add reordering of filters
 - add operation to filter
   - filters can add, subtract, or filter the selection accorgin to their result
