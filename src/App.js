@@ -33,8 +33,8 @@ function App() {
     setCategory,
     unfiltered,
     current,
-    filtered,
     currentFiltered,
+    filtered,
     ignore,
     select,
     setUnfiltered,
@@ -66,7 +66,6 @@ function App() {
     >
       <Typography variant="h2">Finances</Typography>
       <Search {...{ query, setQuery }} />
-      <CurrentFilter filter={currentFilter} setFilter={setCurrentFilter} />
       <Actions
         {...{
           groupBy,
@@ -76,7 +75,9 @@ function App() {
           selectOnly,
           setOpenCategorizeDialog,
           saveFilter,
+          current,
           currentFilter,
+          setCurrentFilter,
         }}
       />
 
@@ -89,8 +90,6 @@ function App() {
           sx={{ flex: 5, margin: 2 }}
           {...{
             setCategory,
-            current,
-            currentFiltered,
             ignore,
             select,
             setUnfiltered,

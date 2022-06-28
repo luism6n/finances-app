@@ -6,26 +6,26 @@ import React from "react";
 
 export default function CurrentFilter({ filter, setFilter }) {
   return (
-    <Stack sx={{ flexDirection: "row" }}>
+    <Stack sx={{ my: 1, flexDirection: "row" }}>
       <TextField
-        sx={{ flex: 2, p: 1 }}
+        sx={{ flex: 2, pr: 1 }}
         variant="filled"
         size="small"
         value={filter.memo}
         onChange={(e) => setFilter({ ...filter, memo: e.target.value })}
-        label="filter memo"
+        label="Description"
       />
       <TextField
-        sx={{ flex: 2, p: 1 }}
+        sx={{ flex: 2, pr: 1 }}
         variant="filled"
         size="small"
         value={filter.categ}
         onChange={(e) => setFilter({ ...filter, categ: e.target.value })}
-        label="filter category"
+        label="Category"
       />
       <LocalizationProvider dateAdapter={AdapterDateFns}>
         <DesktopDatePicker
-          label="min date"
+          label="Min date"
           inputFormat="dd/MM/yyyy"
           value={
             filter.minDate && filter.minDate.isValid() ? filter.minDate : null
@@ -33,7 +33,7 @@ export default function CurrentFilter({ filter, setFilter }) {
           onChange={(d) => setFilter({ ...filter, minDate: moment(d) })}
           renderInput={(params) => (
             <TextField
-              sx={{ flex: 1, p: 1 }}
+              sx={{ flex: 1, pr: 1 }}
               variant="filled"
               size="small"
               {...params}
@@ -41,7 +41,7 @@ export default function CurrentFilter({ filter, setFilter }) {
           )}
         />
         <DesktopDatePicker
-          label="max date"
+          label="Max date"
           inputFormat="dd/MM/yyyy"
           value={
             filter.maxDate && filter.maxDate.isValid() ? filter.maxDate : null
@@ -49,7 +49,7 @@ export default function CurrentFilter({ filter, setFilter }) {
           onChange={(d) => setFilter({ ...filter, maxDate: moment(d) })}
           renderInput={(params) => (
             <TextField
-              sx={{ flex: 1, p: 1 }}
+              sx={{ flex: 1 }}
               variant="filled"
               size="small"
               {...params}

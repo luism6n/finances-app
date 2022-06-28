@@ -15,12 +15,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 function formatMoney(s) {
   return Number(s).toFixed(2);
 }
-export default function Transactions({
-  transactions,
-  ignore,
-  select,
-  setCategory,
-}) {
+export default function Transactions({ transactions }) {
   const ref = useRef();
   const [page, setPage] = useState(1);
   const perPage = 50;
@@ -47,6 +42,7 @@ export default function Transactions({
   return (
     <Stack
       sx={{
+        overflowY: "scroll",
         justifyContent: "space-between",
         alignItems: "center",
         width: "100%",

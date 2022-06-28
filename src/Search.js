@@ -5,7 +5,7 @@ export default function Search({ query, setQuery }) {
   return (
     <TextField
       variant={"filled"}
-      label="Search"
+      label="Quick Search"
       value={query}
       onChange={(e) => setQuery(e.target.value)}
     />

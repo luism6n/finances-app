@@ -6,33 +6,20 @@ import {
   Radio,
   RadioGroup,
   Stack,
-  TextField,
 } from "@mui/material";
-import { nanoid } from "nanoid";
 import React, { useState } from "react";
+import SaveFilterDialog from "./SaveFilterDialog";
 
 function Actions({
   groupBy,
   setGroupBy,
-  ignoreCurrent,
-  selectCurrent,
-  selectOnly,
   setOpenCategorizeDialog,
   saveFilter,
+  current,
   currentFilter,
+  setCurrentFilter,
 }) {
-  const [filterName, setFilterName] = useState("");
-  const [currentFilterNoNameError, setCurrentFilterNoNameError] = useState("");
-  function validateAndSaveFilter(e) {
-    if (!filterName) {
-      setCurrentFilterNoNameError("Filter must have a name");
-      return;
-    }
-
-    setCurrentFilterNoNameError("");
-    saveFilter({ ...currentFilter, name: filterName, id: nanoid() });
-    setFilterName("");
-  }
+  const [openSaveFilterDialog, setOpenSaveFilterDialog] = useState(false);
 
   return (
     <Stack
@@ -60,20 +47,21 @@ function Actions({
       </FormControl>
       <Stack sx={{ flexDirection: "row", justifyContent: "right" }}>
         <Button onClick={() => setOpenCategorizeDialog(true)}>
-          Categorize these
+          Categorize selection
         </Button>
-        <Stack>
-          <TextField
-            sx={{ flex: 2, p: 1 }}
-            variant="filled"
-            size="small"
-            value={filterName}
-            onChange={(e) => setFilterName(e.target.value)}
-            label="filter name"
-            error={!!currentFilterNoNameError}
-          />
-          <Button onClick={validateAndSaveFilter}>Save filter</Button>
-        </Stack>
+        <Button onClick={() => setOpenSaveFilterDialog(true)}>
+          Create filter
+        </Button>
+        <SaveFilterDialog
+          {...{
+            current,
+            currentFilter,
+            setCurrentFilter,
+            saveFilter,
+            open: openSaveFilterDialog,
+            setOpen: setOpenSaveFilterDialog,
+          }}
+        />
       </Stack>
     </Stack>
   );
