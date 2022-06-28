@@ -1,7 +1,15 @@
 # Todo
 
-- separate text into categories and memo in filters
-- create filter pipeline
+- improve interface
+  - add headers to Transactions
+  - add create filter dialog
+- add reordering of filters
+- add operation to filter
+  - filters can add, subtract, or filter the selection accorgin to their result
+- add filter groups
+- give the app a name
+  - yafa
+- learn typescript and convert codebase
 - duplicate detection
 - sorting
 - add integration with nubank API: https://github.com/Astrocoders/nubank-api
@@ -9,9 +17,12 @@
 - brush to select date range
 - click to see expenses in that month
 - important date markers
+- think of a better name for filters (actions? steps?)
 
 # Done
 
+- apply filters in a pipeline
+- separate text into categories and memo in filters
 - named filters
 - categories
 - evolution of each memo/category
