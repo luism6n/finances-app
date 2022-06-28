@@ -1,4 +1,4 @@
-import { Stack, TextField, Typography } from "@mui/material";
+import { Radio, Stack, TextField, Typography } from "@mui/material";
 import React, { useState } from "react";
 
 function formatMoney(s) {
@@ -37,6 +37,7 @@ export default function TransactionCard({
         color: { color },
       }}
     >
+      <Radio sx={{ flex: 0.5 }} checked={!t.ignored} />
       <Typography color={color} sx={{ flex: 0.5 }}>
         {index}
       </Typography>
@@ -58,11 +59,6 @@ export default function TransactionCard({
       <Typography align="left" color={color} sx={{ textDecoration, flex: 1 }}>
         {formatMoney(t.amount)}
       </Typography>
-      {t.ignored ? (
-        <Typography sx={{ flex: 1 }}>⚫</Typography>
-      ) : (
-        <Typography sx={{ flex: 1 }}>🟢</Typography>
-      )}
     </Stack>
   );
 }
