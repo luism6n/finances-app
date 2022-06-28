@@ -1,7 +1,7 @@
 import moment from "moment";
 import { useState } from "react";
 
-function useTransactions(currentFilter, myFilters) {
+function useTransactions(currentFilter, myFilters, searchQuery) {
   const [openFiles, setOpenFiles] = useState([]);
   const [_unfiltered, _setUnfiltered] = useState(() =>
     (
@@ -107,6 +107,14 @@ function useTransactions(currentFilter, myFilters) {
           f.maxDate && f.maxDate.isValid() ? t.date <= f.maxDate : true
         );
     }
+
+    console.log(searchQuery);
+    filtered = filtered.filter((t) => {
+      return (
+        t.memo.toLowerCase().includes(searchQuery) ||
+        t.categ.toLowerCase().includes(searchQuery)
+      );
+    });
 
     return filtered;
   }

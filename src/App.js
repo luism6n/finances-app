@@ -9,6 +9,7 @@ import { Add } from "@mui/icons-material";
 import FileSelector from "./FileSelector";
 import Tabs from "./Tabs";
 import MyFilters from "./MyFilters";
+import Search from "./Search";
 
 function App() {
   const [groupBy, setGroupBy] = useState("memo");
@@ -26,6 +27,8 @@ function App() {
     enabled: true,
   });
 
+  const [query, setQuery] = useState("");
+
   const {
     setCategory,
     unfiltered,
@@ -36,7 +39,8 @@ function App() {
     select,
     setUnfiltered,
     setOpenFiles,
-  } = useTransactions(currentFilter, myFilters);
+  } = useTransactions(currentFilter, myFilters, query);
+
   const [fileSelectorOpen, setFileSelectorOpen] = useState(false);
 
   function ignoreCurrent() {
@@ -61,6 +65,7 @@ function App() {
       sx={{ margin: "auto", height: "98vh", padding: "1vh", maxWidth: 1200 }}
     >
       <Typography variant="h2">Finances</Typography>
+      <Search {...{ query, setQuery }} />
       <CurrentFilter filter={currentFilter} setFilter={setCurrentFilter} />
       <Actions
         {...{
