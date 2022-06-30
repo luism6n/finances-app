@@ -1,8 +1,8 @@
 # Todo
 
+- add ranges to search
 - add docs
 - make naming consistent
-- move categorize selection to Transactions
 - use tags instead of categories
 - give the app a name
   - yafa
@@ -18,6 +18,7 @@
 
 # Done
 
+- move categorize selection to Transactions
 - add advanced query
 - add headers to Transactions
 - apply filters in a pipeline
