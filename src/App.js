@@ -14,47 +14,59 @@ import Search from "./Search";
 function App() {
   const [groupBy, setGroupBy] = useState("memo");
   const [openCategorizeDialog, setOpenCategorizeDialog] = useState(false);
-  const {
-    currentFilter,
-    setCurrentFilter,
-    myFilters,
-    saveFilter,
-    toggleFilter,
-    deleteFilter,
-  } = useFilters({
-    memo: "",
-    categ: "",
+  const { myFilters, saveFilter, toggleFilter, deleteFilter } = useFilters();
+
+  const { transactions, setCategory, setTransactions, setOpenFiles } =
+    useTransactions();
+  const [currentFilter, setCurrentFilter] = useState({
+    query: {},
     enabled: true,
   });
 
-  const [query, setQuery] = useState("");
-
-  const {
-    setCategory,
-    unfiltered,
-    current,
-    currentFiltered,
-    filtered,
-    ignore,
-    select,
-    setUnfiltered,
-    setOpenFiles,
-  } = useTransactions(currentFilter, myFilters, query);
-
   const [fileSelectorOpen, setFileSelectorOpen] = useState(false);
 
-  function ignoreCurrent() {
-    ignore(current);
+  function includesAny(value, searchTerms) {
+    if (!searchTerms) {
+      return true;
+    }
+
+    for (let term of searchTerms) {
+      if (term.startsWith("!")) {
+        if (!value.includes(term.substring(1))) return true;
+      } else if (value.includes(term)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
-  function selectCurrent() {
-    select(current);
+  function applyFilters(transactions, filters) {
+    let filtered = transactions;
+    for (let f of filters) {
+      if (!f.enabled) {
+        continue;
+      }
+
+      let q = f.query;
+      console.log({ q });
+
+      filtered = filtered
+        .filter((t) =>
+          includesAny(t.memo.toLowerCase() + t.categ.toLowerCase(), q.text)
+        )
+        .filter((t) => includesAny(t.memo.toLowerCase(), q.desc))
+        .filter((t) => includesAny(t.categ.toLowerCase(), q.categ))
+        .filter((t) => includesAny(t.date.format("YYYY"), q.y))
+        .filter((t) => includesAny(t.date.format("MM"), q.m))
+        .filter((t) => includesAny(t.date.format("DD"), q.d));
+    }
+
+    return filtered;
   }
 
-  function selectOnly() {
-    ignore(unfiltered);
-    select(current);
-  }
+  const filtered = applyFilters(transactions, [...myFilters, currentFilter]);
+  const currentFilterResults = applyFilters(transactions, [currentFilter]);
 
   function openFileSelector() {
     setFileSelectorOpen(true);
@@ -65,19 +77,16 @@ function App() {
       sx={{ margin: "auto", height: "98vh", padding: "1vh", maxWidth: 1200 }}
     >
       <Typography variant="h2">Finances</Typography>
-      <Search {...{ query, setQuery }} />
+      <CurrentFilter
+        filter={currentFilter}
+        setFilter={setCurrentFilter}
+        saveFilter={saveFilter}
+      />
       <Actions
         {...{
           groupBy,
           setGroupBy,
-          ignoreCurrent,
-          selectCurrent,
-          selectOnly,
           setOpenCategorizeDialog,
-          saveFilter,
-          current,
-          currentFilter,
-          setCurrentFilter,
         }}
       />
 
@@ -89,12 +98,8 @@ function App() {
         <Tabs
           sx={{ flex: 5, margin: 2 }}
           {...{
-            setCategory,
-            ignore,
-            select,
-            setUnfiltered,
-            setOpenFiles,
             filtered,
+            currentFilterResults,
             groupBy,
           }}
         />
@@ -106,7 +111,7 @@ function App() {
       <FileSelector
         open={fileSelectorOpen}
         setOpen={setFileSelectorOpen}
-        setUnfiltered={setUnfiltered}
+        setTransactions={setTransactions}
         setOpenFiles={setOpenFiles}
       ></FileSelector>
 

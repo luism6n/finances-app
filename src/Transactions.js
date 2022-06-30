@@ -1,6 +1,4 @@
 import {
-  Box,
-  CircularProgress,
   Pagination,
   Stack,
   Table,
@@ -10,7 +8,7 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 
 function formatMoney(s) {
   return Number(s).toFixed(2);
@@ -32,7 +30,6 @@ export default function Transactions({ transactions }) {
     (page - 1) * perPage,
     page * perPage
   );
-  console.log({ transactionsInPage });
 
   function onPageChange(e, v) {
     setPage(v);

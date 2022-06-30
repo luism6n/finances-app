@@ -3,12 +3,13 @@ import { useState } from "react";
 
 function useTransactions(currentFilter, myFilters, searchQuery) {
   const [openFiles, setOpenFiles] = useState([]);
-  const [_unfiltered, _setUnfiltered] = useState(() =>
+  const [transactions, _setTransactions] = useState(() =>
     (
-      JSON.parse(window.localStorage.getItem("unfiltered")) || [
+      JSON.parse(window.localStorage.getItem("transactions")) || [
         {
           id: "626e4741-144e-4ea4-be0d-1a4ec851c073",
           memo: "a",
+          categ: "c",
           amount: 20,
           date: "2022-01-01T03:00:00.000Z",
           ignored: false,
@@ -19,6 +20,7 @@ function useTransactions(currentFilter, myFilters, searchQuery) {
         {
           id: "6275cf18-e75c-459b-a948-6708195b6610",
           memo: "b",
+          categ: "d",
           amount: -10,
           date: "2022-02-02T03:00:00.000Z",
           ignored: false,
@@ -32,19 +34,22 @@ function useTransactions(currentFilter, myFilters, searchQuery) {
     })
   );
 
-  function setUnfiltered(t) {
+  function setTransactions(t) {
     if (typeof t === "function") {
-      window.localStorage.setItem("unfiltered", JSON.stringify(t(unfiltered)));
+      window.localStorage.setItem(
+        "transactions",
+        JSON.stringify(t(transactions))
+      );
     } else {
-      window.localStorage.setItem("unfiltered", JSON.stringify(t));
+      window.localStorage.setItem("transactions", JSON.stringify(t));
     }
-    _setUnfiltered(t);
+    _setTransactions(t);
   }
 
   function replaceInUnfiltered(newTransactions) {
     const newIgnoredIds = new Set(newTransactions.map((t) => t.id));
 
-    setUnfiltered((u) => [
+    setTransactions((u) => [
       ...u.filter((tt) => !newIgnoredIds.has(tt.id)),
       ...newTransactions,
     ]);
@@ -58,28 +63,6 @@ function useTransactions(currentFilter, myFilters, searchQuery) {
     return x;
   }
 
-  function ignore(newIgnored) {
-    newIgnored = makeArray(newIgnored).map((t) => {
-      return {
-        ...t,
-        ignored: true,
-      };
-    });
-
-    replaceInUnfiltered(newIgnored);
-  }
-
-  function select(newSelected) {
-    newSelected = makeArray(newSelected).map((t) => {
-      return {
-        ...t,
-        ignored: false,
-      };
-    });
-
-    replaceInUnfiltered(newSelected);
-  }
-
   function setCategory(t, categ) {
     t = makeArray(t).map((t) => {
       return {
@@ -90,57 +73,11 @@ function useTransactions(currentFilter, myFilters, searchQuery) {
     replaceInUnfiltered(t);
   }
 
-  function applyFilters(transactions, filters) {
-    let filtered = transactions;
-    for (let f of filters) {
-      if (!f.enabled) {
-        continue;
-      }
-
-      filtered = filtered
-        .filter((t) => t.memo.toLowerCase().includes(f.memo))
-        .filter((t) => t.categ.toLowerCase().includes(f.categ))
-        .filter((t) =>
-          f.minDate && f.minDate.isValid() ? t.date >= f.minDate : true
-        )
-        .filter((t) =>
-          f.maxDate && f.maxDate.isValid() ? t.date <= f.maxDate : true
-        );
-    }
-
-    console.log(searchQuery);
-    filtered = filtered.filter((t) => {
-      return (
-        t.memo.toLowerCase().includes(searchQuery) ||
-        t.categ.toLowerCase().includes(searchQuery)
-      );
-    });
-
-    return filtered;
-  }
-
-  const filteredIds = new Set(
-    applyFilters(_unfiltered, myFilters).map((t) => t.id)
-  );
-  const unfiltered = _unfiltered.map((t) => ({
-    ...t,
-    ignored: !filteredIds.has(t.id),
-  }));
-  const current = applyFilters(unfiltered, [currentFilter]);
-  const filtered = unfiltered.filter((t) => filteredIds.has(t.id));
-  const currentFiltered = applyFilters(current, myFilters);
-  console.log({ unfiltered, filtered, current });
-
   return {
+    transactions,
     setCategory,
-    unfiltered,
-    current,
-    filtered,
-    currentFiltered,
-    setUnfiltered,
+    setTransactions,
     setOpenFiles,
-    ignore,
-    select,
   };
 }
 

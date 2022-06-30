@@ -7,20 +7,9 @@ import {
   RadioGroup,
   Stack,
 } from "@mui/material";
-import React, { useState } from "react";
-import SaveFilterDialog from "./SaveFilterDialog";
+import React from "react";
 
-function Actions({
-  groupBy,
-  setGroupBy,
-  setOpenCategorizeDialog,
-  saveFilter,
-  current,
-  currentFilter,
-  setCurrentFilter,
-}) {
-  const [openSaveFilterDialog, setOpenSaveFilterDialog] = useState(false);
-
+function Actions({ groupBy, setGroupBy, setOpenCategorizeDialog }) {
   return (
     <Stack
       sx={{
@@ -49,19 +38,6 @@ function Actions({
         <Button onClick={() => setOpenCategorizeDialog(true)}>
           Categorize selection
         </Button>
-        <Button onClick={() => setOpenSaveFilterDialog(true)}>
-          Create filter
-        </Button>
-        <SaveFilterDialog
-          {...{
-            current,
-            currentFilter,
-            setCurrentFilter,
-            saveFilter,
-            open: openSaveFilterDialog,
-            setOpen: setOpenSaveFilterDialog,
-          }}
-        />
       </Stack>
     </Stack>
   );
