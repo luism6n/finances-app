@@ -40,6 +40,33 @@ function App() {
     return false;
   }
 
+  function amountMatches(amount, query) {
+    if (!query) {
+      return true;
+    }
+
+    for (let q of query) {
+      let op = q[0];
+      let value;
+
+      try {
+        value = Number.parseFloat(q.substring(1));
+      } catch {
+        continue;
+      }
+      switch (op) {
+        case ">":
+          if (amount >= value) return true;
+          break;
+        case "<":
+          if (amount <= value) return true;
+          break;
+        default:
+          return true;
+      }
+    }
+  }
+
   function applyFilters(transactions, filters) {
     let filtered = transactions;
     for (let f of filters) {
@@ -58,7 +85,8 @@ function App() {
         .filter((t) => includesAny(t.categ.toLowerCase(), q.categ))
         .filter((t) => includesAny(t.date.format("YYYY"), q.y))
         .filter((t) => includesAny(t.date.format("MM"), q.m))
-        .filter((t) => includesAny(t.date.format("DD"), q.d));
+        .filter((t) => includesAny(t.date.format("DD"), q.d))
+        .filter((t) => amountMatches(t.amount, q.amount));
     }
 
     return filtered;

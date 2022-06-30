@@ -27,7 +27,7 @@ export default function CurrentFilter({ filter, setFilter, saveFilter }) {
     setQuery(newQuery);
     const options = {
       alwaysArray: true,
-      keywords: ["desc", "categ", "y", "d", "m"],
+      keywords: ["desc", "categ", "y", "d", "m", "amount"],
       ranges: ["date"],
       tokenize: true,
     };
