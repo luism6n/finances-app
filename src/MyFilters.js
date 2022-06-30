@@ -7,16 +7,7 @@ function MyFilter({ f, toggleFilter, deleteFilter }) {
       placement="right"
       title={
         <Stack>
-          <Typography>Memo: {f.memo}</Typography>
-          <Typography>categ: {f.categ}</Typography>
-          <Typography>
-            Min date:{" "}
-            {f.minDate && f.minDate.isValid() ? f.minDate.format() : ""}
-          </Typography>
-          <Typography>
-            Max date:{" "}
-            {f.maxDate && f.maxDate.isValid() ? f.maxDate.format() : ""}
-          </Typography>
+          <Typography>{f.queryString}</Typography>
         </Stack>
       }
     >

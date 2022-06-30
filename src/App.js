@@ -12,7 +12,6 @@ import MyFilters from "./MyFilters";
 import Search from "./Search";
 
 function App() {
-  const [groupBy, setGroupBy] = useState("memo");
   const [openCategorizeDialog, setOpenCategorizeDialog] = useState(false);
   const { myFilters, saveFilter, toggleFilter, deleteFilter } = useFilters();
 
@@ -84,8 +83,6 @@ function App() {
       />
       <Actions
         {...{
-          groupBy,
-          setGroupBy,
           setOpenCategorizeDialog,
         }}
       />
@@ -100,7 +97,6 @@ function App() {
           {...{
             filtered,
             currentFilterResults,
-            groupBy,
           }}
         />
       </Stack>

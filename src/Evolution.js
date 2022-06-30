@@ -2,11 +2,23 @@ import React, { useEffect, useState } from "react";
 
 import * as d3 from "d3";
 import getTransactionsVsDateAxes from "./axes";
-import { Stack, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  FormControl,
+  FormControlLabel,
+  FormLabel,
+  Radio,
+  RadioGroup,
+  Stack,
+  Typography,
+} from "@mui/material";
 import useSize from "./useSize";
 import moment from "moment";
 
-export default function Evolution({ groupBy, transactions }) {
+export default function Evolution({ transactions }) {
+  const [groupBy, setGroupBy] = useState("memo");
+  console.log({ groupBy });
+
   const [mousedOverKey, setMousedOverKey] = useState("");
   const [mousedOverKeyAnnotation, setMousedOverKeyAnnotation] = useState("");
   const { ref, height, width } = useSize();
@@ -23,6 +35,8 @@ export default function Evolution({ groupBy, transactions }) {
         return t.memo;
       case "category":
         return t.categ;
+      case "weekday":
+        return t.date.format("ddd");
       default:
         console.error("unknown groupBy", groupBy);
     }
@@ -32,8 +46,11 @@ export default function Evolution({ groupBy, transactions }) {
     transactions,
     (g) => d3.sum(g, (t) => -t.amount),
     (t) => groupByKey(t),
-    (t) => t.date.startOf("month")
+    (t) => t.date.clone().startOf("month")
   );
+
+  console.log({ t: transactions.map((t) => t.date.format("ddd")) });
+  console.log({ byKey });
 
   let maxY = d3.max(
     Array.from(byKey, ([memo, dates]) => {
@@ -154,7 +171,7 @@ export default function Evolution({ groupBy, transactions }) {
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transactions, width, height]);
+  }, [transactions, width, height, groupBy]);
 
   function sortMemoKeys(k1, k2) {
     return (
@@ -164,23 +181,53 @@ export default function Evolution({ groupBy, transactions }) {
   }
 
   return (
-    <Stack sx={{ flex: 1, height: "100%" }} ref={ref}>
-      <Typography align="center" height={20} color={colorScale(mousedOverKey)}>
-        <strong>{mousedOverKey}</strong> {mousedOverKeyAnnotation}
-      </Typography>
-      <svg height="100%" width="100%" id="container">
-        <g className="xAxis"></g>
-        <path className="lineAtZero"></path>
-        {top10Memos.map((memo, i) => {
-          return (
-            <g key={memo} id={"id" + i}>
-              <g className="lines"></g>
-              <g className="circles"></g>
-            </g>
-          );
-        })}
-        <g className="yAxis"></g>;
-      </svg>
+    <Stack sx={{ flex: 1, height: "100%" }}>
+      <FormControl component="fieldset">
+        <FormLabel component="legend">Group By</FormLabel>
+        <RadioGroup
+          row
+          aria-label="groupby options"
+          name="groupby"
+          value={groupBy}
+          onChange={(e) => setGroupBy(e.target.value)}
+        >
+          <FormControlLabel value="memo" control={<Radio />} label="memo" />
+          <FormControlLabel
+            value="category"
+            control={<Radio />}
+            label="category"
+          />
+          <FormControlLabel
+            value="weekday"
+            control={<Radio />}
+            label="weekday"
+          />
+        </RadioGroup>
+      </FormControl>
+
+      <Box height="100%" ref={ref}>
+        <Typography
+          align="center"
+          height={20}
+          color={colorScale(mousedOverKey)}
+        >
+          <strong>{mousedOverKey}</strong> {mousedOverKeyAnnotation}
+        </Typography>
+
+        <svg height="100%" width="100%" id="container">
+          <g className="xAxis"></g>
+          <path className="lineAtZero"></path>
+          {top10Memos.map((memo, i) => {
+            return (
+              <g key={memo} id={"id" + i}>
+                <g className="lines"></g>
+                <g className="circles"></g>
+              </g>
+            );
+          })}
+          <g className="yAxis"></g>;
+        </svg>
+      </Box>
     </Stack>
   );
 }

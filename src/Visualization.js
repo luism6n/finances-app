@@ -1,10 +1,22 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import * as d3 from "d3";
 import useSize from "./useSize";
-import { Stack, Tooltip, Typography } from "@mui/material";
+import {
+  Box,
+  FormControl,
+  FormControlLabel,
+  FormLabel,
+  Radio,
+  RadioGroup,
+  Stack,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import getTransactionsVsDateAxes from "./axes";
 
-export default function Visualization({ groupBy, transactions }) {
+export default function Visualization({ transactions }) {
+  const [groupBy, setGroupBy] = useState("memo");
+
   const { ref, height, width } = useSize();
 
   const margin = {
@@ -59,7 +71,7 @@ export default function Visualization({ groupBy, transactions }) {
     d3.select("path.lineAtZero").attr("d", lineAtZero).style("stroke", "gray");
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transactions, width, height]);
+  }, [groupBy, transactions, width, height]);
 
   function groupByKey(t) {
     switch (groupBy) {
@@ -67,6 +79,8 @@ export default function Visualization({ groupBy, transactions }) {
         return t.memo;
       case "category":
         return t.categ;
+      case "weekday":
+        return t.date.format("ddd");
       default:
         console.error("unknown groupBy", groupBy);
     }
@@ -138,57 +152,86 @@ export default function Visualization({ groupBy, transactions }) {
   }
 
   return (
-    <Stack sx={{ flex: 1, height: "100%" }} ref={ref}>
-      <svg height="100%" width="100%" id="container">
-        <g className="xAxis"></g>
-        <path className="lineAtZero"></path>
-        <g className="yAxis"></g>
-        <g className="income">
-          {Array.from(income.entries()).map((d) => {
-            return (
-              <Tooltip key={d[0]} title={incomeTitle(d[0])} placement="right">
-                <rect
-                  x={xScale(d[0])}
-                  y={yScale(d[1])}
-                  height={Math.abs(yScale(0) - yScale(d[1]))}
-                  width={xScale.bandwidth() / 3}
-                  style={{ fill: "#b3de69" }}
-                ></rect>
-              </Tooltip>
-            );
-          })}
-        </g>
-        <g className="expenses">
-          {Array.from(expenses.entries()).map((d) => {
-            return (
-              <Tooltip key={d[0]} title={expensesTitle(d[0])} placement="right">
-                <rect
-                  x={xScale(d[0]) + xScale.bandwidth() / 3}
-                  y={yScale(0)}
-                  height={Math.abs(yScale(0) - yScale(d[1]))}
-                  width={xScale.bandwidth() / 3}
-                  style={{ fill: "#fb8072" }}
-                ></rect>
-              </Tooltip>
-            );
-          })}
-        </g>
-        <g className="net">
-          {Array.from(net.entries()).map((d) => {
-            return (
-              <Tooltip key={d[0]} title={netTitle(d[0])} placement="right">
-                <rect
-                  x={xScale(d[0]) + (2 * xScale.bandwidth()) / 3}
-                  y={Math.min(yScale(0), yScale(d[1]))}
-                  height={Math.abs(yScale(0) - yScale(d[1]))}
-                  width={xScale.bandwidth() / 3}
-                  style={{ fill: "#80b1d3" }}
-                ></rect>
-              </Tooltip>
-            );
-          })}
-        </g>
-      </svg>
+    <Stack sx={{ flex: 1, height: "100%" }}>
+      <FormControl component="fieldset">
+        <FormLabel component="legend">Group By</FormLabel>
+        <RadioGroup
+          row
+          aria-label="groupby options"
+          name="groupby"
+          value={groupBy}
+          onChange={(e) => setGroupBy(e.target.value)}
+        >
+          <FormControlLabel value="memo" control={<Radio />} label="memo" />
+          <FormControlLabel
+            value="category"
+            control={<Radio />}
+            label="category"
+          />
+          <FormControlLabel
+            value="weekday"
+            control={<Radio />}
+            label="weekday"
+          />
+        </RadioGroup>
+      </FormControl>
+
+      <Box height="100%" ref={ref}>
+        <svg height="100%" width="100%" id="container">
+          <g className="xAxis"></g>
+          <path className="lineAtZero"></path>
+          <g className="yAxis"></g>
+          <g className="income">
+            {Array.from(income.entries()).map((d) => {
+              return (
+                <Tooltip key={d[0]} title={incomeTitle(d[0])} placement="right">
+                  <rect
+                    x={xScale(d[0])}
+                    y={yScale(d[1])}
+                    height={Math.abs(yScale(0) - yScale(d[1]))}
+                    width={xScale.bandwidth() / 3}
+                    style={{ fill: "#b3de69" }}
+                  ></rect>
+                </Tooltip>
+              );
+            })}
+          </g>
+          <g className="expenses">
+            {Array.from(expenses.entries()).map((d) => {
+              return (
+                <Tooltip
+                  key={d[0]}
+                  title={expensesTitle(d[0])}
+                  placement="right"
+                >
+                  <rect
+                    x={xScale(d[0]) + xScale.bandwidth() / 3}
+                    y={yScale(0)}
+                    height={Math.abs(yScale(0) - yScale(d[1]))}
+                    width={xScale.bandwidth() / 3}
+                    style={{ fill: "#fb8072" }}
+                  ></rect>
+                </Tooltip>
+              );
+            })}
+          </g>
+          <g className="net">
+            {Array.from(net.entries()).map((d) => {
+              return (
+                <Tooltip key={d[0]} title={netTitle(d[0])} placement="right">
+                  <rect
+                    x={xScale(d[0]) + (2 * xScale.bandwidth()) / 3}
+                    y={Math.min(yScale(0), yScale(d[1]))}
+                    height={Math.abs(yScale(0) - yScale(d[1]))}
+                    width={xScale.bandwidth() / 3}
+                    style={{ fill: "#80b1d3" }}
+                  ></rect>
+                </Tooltip>
+              );
+            })}
+          </g>
+        </svg>
+      </Box>
     </Stack>
   );
 }

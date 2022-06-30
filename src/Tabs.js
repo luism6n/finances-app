@@ -29,14 +29,14 @@ export default function Tabs({ sx, filtered, groupBy, currentFilterResults }) {
         </TabPanel>
         <TabPanel sx={{ overflow: "hidden", height: "100%" }} value="3">
           {filtered.length > 0 ? (
-            <Visualization groupBy={groupBy} transactions={filtered} />
+            <Visualization transactions={filtered} />
           ) : (
             "Select at least one transaction"
           )}
         </TabPanel>
         <TabPanel sx={{ overflow: "hidden", height: "100%" }} value="4">
           {filtered.length > 0 ? (
-            <Evolution groupBy={groupBy} transactions={filtered} />
+            <Evolution transactions={filtered} />
           ) : (
             "Select at least one transaction"
           )}

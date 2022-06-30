@@ -31,7 +31,11 @@ export default function CurrentFilter({ filter, setFilter, saveFilter }) {
       ranges: ["date"],
       tokenize: true,
     };
-    setFilter({ ...filter, query: parse(newQuery, options) });
+    setFilter({
+      ...filter,
+      query: parse(newQuery, options),
+      queryString: newQuery,
+    });
   }
 
   return (
