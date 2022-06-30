@@ -1,4 +1,4 @@
-import { Chip, Stack, Tooltip, Typography } from "@mui/material";
+import { Box, Chip, Stack, Tooltip, Typography } from "@mui/material";
 import React from "react";
 
 function MyFilter({ f, toggleFilter, deleteFilter }) {
@@ -16,6 +16,7 @@ function MyFilter({ f, toggleFilter, deleteFilter }) {
         onClick={() => toggleFilter(f)}
         onDelete={() => deleteFilter(f)}
         variant={f.enabled ? "" : "outlined"}
+        color={f.enabled ? "primary" : "default"}
         sx={{ m: 1, p: 1 }}
         label={f.name}
       />
@@ -32,7 +33,7 @@ export default function MyFilters({
   return (
     <Stack sx={{ ...sx }}>
       <Typography variant="h4">My Filters</Typography>
-      <Stack sx={{ overflowY: "scroll" }}>
+      <Box sx={{ overflowY: "scroll" }}>
         {myFilters.map((f) => (
           <MyFilter
             deleteFilter={deleteFilter}
@@ -41,7 +42,7 @@ export default function MyFilters({
             f={f}
           />
         ))}
-      </Stack>
+      </Box>
     </Stack>
   );
 }

@@ -5,7 +5,7 @@ import { formatMoney } from "./utils";
 
 export default function Summary({ transactions }) {
   function largestTransaction() {
-    let l = transactions[d3.maxIndex(transactions, (t) => t.amount)];
+    let l = transactions[d3.maxIndex(transactions, (t) => Math.abs(t.amount))];
     return `${formatMoney(l.amount)} ${l.memo}`;
   }
 

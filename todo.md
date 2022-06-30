@@ -1,13 +1,9 @@
 # Todo
 
-- improve interface
-  - add headers to Transactions
-  - add create filter dialog
-- separate date fields in filters
-- add reordering of filters
-- add operation to filter
-  - filters can add, subtract, or filter the selection accorgin to their result
-- add filter groups
+- add docs
+- make naming consistent
+- move categorize selection to Transactions
+- use tags instead of categories
 - give the app a name
   - yafa
 - learn typescript and convert codebase
@@ -22,6 +18,8 @@
 
 # Done
 
+- add advanced query
+- add headers to Transactions
 - apply filters in a pipeline
 - separate text into categories and memo in filters
 - named filters
