@@ -22,7 +22,7 @@ import parseCSV from "./utils";
 export default function FileSelector({
   open,
   setOpen,
-  setUnfiltered,
+  setTransactions,
   setOpenFiles,
 }) {
   const [erasePrevious, setErasePrevious] = useState(false);
@@ -88,12 +88,12 @@ export default function FileSelector({
 
     if (erasePrevious) {
       setOpenFiles(newFiles);
-      setUnfiltered(newTransactions);
+      setTransactions(newTransactions);
     } else {
       setOpenFiles((o) => {
         return [...o, newFiles];
       });
-      setUnfiltered((u) => {
+      setTransactions((u) => {
         return [...u, ...newTransactions];
       });
     }

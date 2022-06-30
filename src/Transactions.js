@@ -30,7 +30,6 @@ export default function Transactions({ transactions }) {
     (page - 1) * perPage,
     page * perPage
   );
-  console.log({ transactionsInPage });
 
   function onPageChange(e, v) {
     setPage(v);

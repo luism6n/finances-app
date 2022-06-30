@@ -1,15 +1,8 @@
-import moment from "moment";
 import { useState } from "react";
 
 export default function useFilters() {
   const [myFilters, _setMyFilters] = useState(
-    (JSON.parse(window.localStorage.getItem("myFilters")) || []).map((f) => {
-      return {
-        ...f,
-        minDate: moment(f.minDate, moment.defaultFormatUtc),
-        maxDate: moment(f.maxDate, moment.defaultFormatUtc),
-      };
-    })
+    JSON.parse(window.localStorage.getItem("myFilters")) || []
   );
 
   function setMyFilters(fs) {

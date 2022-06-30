@@ -18,37 +18,54 @@ function App() {
   const { transactions, setCategory, setTransactions, setOpenFiles } =
     useTransactions();
   const [currentFilter, setCurrentFilter] = useState({
-    memo: "",
-    categ: "",
+    query: {},
     enabled: true,
   });
 
   const [fileSelectorOpen, setFileSelectorOpen] = useState(false);
 
+  function includesAny(value, searchTerms) {
+    if (!searchTerms) {
+      return true;
+    }
+
+    for (let term of searchTerms) {
+      if (term.startsWith("!")) {
+        if (!value.includes(term.substring(1))) return true;
+      } else if (value.includes(term)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   function applyFilters(transactions, filters) {
-    console.log(transactions);
     let filtered = transactions;
     for (let f of filters) {
       if (!f.enabled) {
         continue;
       }
 
+      let q = f.query;
+      console.log({ q });
+
       filtered = filtered
-        .filter((t) => t.memo.toLowerCase().includes(f.memo))
-        .filter((t) => t.categ.toLowerCase().includes(f.categ))
         .filter((t) =>
-          f.minDate && f.minDate.isValid() ? t.date >= f.minDate : true
+          includesAny(t.memo.toLowerCase() + t.categ.toLowerCase(), q.text)
         )
-        .filter((t) =>
-          f.maxDate && f.maxDate.isValid() ? t.date <= f.maxDate : true
-        );
+        .filter((t) => includesAny(t.memo.toLowerCase(), q.desc))
+        .filter((t) => includesAny(t.categ.toLowerCase(), q.categ))
+        .filter((t) => includesAny(t.date.format("YYYY"), q.y))
+        .filter((t) => includesAny(t.date.format("MM"), q.m))
+        .filter((t) => includesAny(t.date.format("DD"), q.d));
     }
 
     return filtered;
   }
 
-  console.log({ currentFilter, myFilters, transactions });
   const filtered = applyFilters(transactions, [...myFilters, currentFilter]);
+  const currentFilterResults = applyFilters(transactions, [currentFilter]);
 
   function openFileSelector() {
     setFileSelectorOpen(true);
@@ -82,10 +99,8 @@ function App() {
         <Tabs
           sx={{ flex: 5, margin: 2 }}
           {...{
-            setCategory,
             filtered,
-            setTransactions,
-            setOpenFiles,
+            currentFilterResults,
             groupBy,
           }}
         />
