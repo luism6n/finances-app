@@ -9,10 +9,8 @@ import {
   TableRow,
 } from "@mui/material";
 import React, { useMemo, useRef, useState } from "react";
+import { formatMoney } from "./utils";
 
-function formatMoney(s) {
-  return Number(s).toFixed(2);
-}
 export default function Transactions({ transactions }) {
   const ref = useRef();
   const [page, setPage] = useState(1);

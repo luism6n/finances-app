@@ -17,7 +17,7 @@ import {
 import moment from "moment";
 import { nanoid } from "nanoid";
 import React, { useState } from "react";
-import parseCSV from "./utils";
+import { parseCSV } from "./utils";
 
 export default function FileSelector({
   open,

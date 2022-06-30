@@ -1,3 +1,7 @@
+function formatMoney(s) {
+  return Number(s).toFixed(2);
+}
+
 // https://stackoverflow.com/a/14991797/15479916
 function parseCSV(str) {
   var arr = [];
@@ -59,4 +63,4 @@ function parseCSV(str) {
   return arr;
 }
 
-export default parseCSV;
+export { parseCSV, formatMoney };
