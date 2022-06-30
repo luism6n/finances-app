@@ -1,4 +1,5 @@
 import {
+  Button,
   Pagination,
   Stack,
   Table,
@@ -9,9 +10,12 @@ import {
   TableRow,
 } from "@mui/material";
 import React, { useMemo, useRef, useState } from "react";
+import CategorizeDialog from "./CategorizeDialog";
 import { formatMoney } from "./utils";
 
-export default function Transactions({ transactions }) {
+export default function Transactions({ transactions, setCategory }) {
+  const [openCategorizeDialog, setOpenCategorizeDialog] = useState(false);
+
   const ref = useRef();
   const [page, setPage] = useState(1);
   const perPage = 50;
@@ -44,7 +48,15 @@ export default function Transactions({ transactions }) {
         height: "100%",
       }}
     >
-      <TableContainer ref={ref}>
+      <Button onClick={() => setOpenCategorizeDialog(true)}>
+        Categorize selection
+      </Button>
+      <CategorizeDialog
+        open={openCategorizeDialog}
+        setOpen={setOpenCategorizeDialog}
+        setCategory={(c) => setCategory(transactions, c)}
+      ></CategorizeDialog>
+      <TableContainer sx={{ height: "100%" }} ref={ref}>
         <Table
           stickyHeader
           sx={{ minWidth: 650 }}

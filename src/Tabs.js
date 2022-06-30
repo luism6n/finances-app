@@ -6,7 +6,12 @@ import Summary from "./Summary";
 import Transactions from "./Transactions";
 import Visualization from "./Visualization";
 
-export default function Tabs({ sx, filtered, groupBy, currentFilterResults }) {
+export default function Tabs({
+  sx,
+  filtered,
+  setCategory,
+  currentFilterResults,
+}) {
   const [tab, setTab] = useState("1");
   return (
     <TabContext value={tab}>
@@ -24,10 +29,13 @@ export default function Tabs({ sx, filtered, groupBy, currentFilterResults }) {
           </TabList>
         </Box>
         <TabPanel sx={{ overflow: "hidden", height: "100%", p: 0 }} value="1">
-          <Transactions transactions={currentFilterResults} />
+          <Transactions
+            setCategory={setCategory}
+            transactions={currentFilterResults}
+          />
         </TabPanel>
         <TabPanel sx={{ overflow: "hidden", height: "100%", p: 0 }} value="2">
-          <Transactions transactions={filtered} />
+          <Transactions setCategory={setCategory} transactions={filtered} />
         </TabPanel>
         <TabPanel sx={{ overflow: "hidden", height: "100%" }} value="3">
           {filtered.length > 0 ? (

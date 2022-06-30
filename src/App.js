@@ -1,18 +1,14 @@
 import { Fab, Stack, Typography } from "@mui/material";
 import { useState } from "react";
 import useTransactions from "./useTransactions";
-import CategorizeDialog from "./CategorizeDialog";
 import CurrentFilter from "./CurrentFilter";
 import useFilters from "./useFilters";
-import Actions from "./Actions";
 import { Add } from "@mui/icons-material";
 import FileSelector from "./FileSelector";
 import Tabs from "./Tabs";
 import MyFilters from "./MyFilters";
-import Search from "./Search";
 
 function App() {
-  const [openCategorizeDialog, setOpenCategorizeDialog] = useState(false);
   const { myFilters, saveFilter, toggleFilter, deleteFilter } = useFilters();
 
   const { transactions, setCategory, setTransactions, setOpenFiles } =
@@ -109,11 +105,6 @@ function App() {
         setFilter={setCurrentFilter}
         saveFilter={saveFilter}
       />
-      <Actions
-        {...{
-          setOpenCategorizeDialog,
-        }}
-      />
 
       <Stack sx={{ overflow: "hidden", flex: 1, flexDirection: "row" }}>
         <MyFilters
@@ -125,6 +116,7 @@ function App() {
           {...{
             filtered,
             currentFilterResults,
+            setCategory,
           }}
         />
       </Stack>
@@ -138,12 +130,6 @@ function App() {
         setTransactions={setTransactions}
         setOpenFiles={setOpenFiles}
       ></FileSelector>
-
-      <CategorizeDialog
-        open={openCategorizeDialog}
-        setOpen={setOpenCategorizeDialog}
-        setCategory={(c) => setCategory(filtered, c)}
-      ></CategorizeDialog>
     </Stack>
   );
 }
