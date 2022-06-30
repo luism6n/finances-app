@@ -37,7 +37,7 @@ export default function CurrentFilter({ filter, setFilter, saveFilter }) {
   return (
     <Stack sx={{ my: 1, flexDirection: "row" }}>
       <TextField
-        sx={{ flex: 2, pr: 1 }}
+        sx={{ flex: 3, pr: 1 }}
         variant="filled"
         size="small"
         value={query}
@@ -45,12 +45,12 @@ export default function CurrentFilter({ filter, setFilter, saveFilter }) {
         label="Search query"
       />
       <TextField
-        sx={{ flex: 1, p: 1 }}
+        sx={{ flex: 1, pr: 1 }}
         variant="filled"
         size="small"
         value={filterName}
         onChange={(e) => setFilterName(e.target.value)}
-        label="filter name"
+        label="Filter name"
         error={!!currentFilterNoNameError}
       />
       <Button onClick={validateAndSaveFilter}>Save filter</Button>
