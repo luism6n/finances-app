@@ -1,10 +1,25 @@
-import { Stack, TextField } from "@mui/material";
+import { Button, Stack, TextField } from "@mui/material";
 import { DesktopDatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import moment from "moment";
-import React from "react";
+import { nanoid } from "nanoid";
+import React, { useState } from "react";
 
-export default function CurrentFilter({ filter, setFilter }) {
+export default function CurrentFilter({ filter, setFilter, saveFilter }) {
+  const [filterName, setFilterName] = useState("");
+  const [currentFilterNoNameError, setCurrentFilterNoNameError] = useState("");
+  function validateAndSaveFilter(e) {
+    if (!filterName) {
+      setCurrentFilterNoNameError("Filter must have a name");
+      return;
+    }
+
+    setCurrentFilterNoNameError("");
+    saveFilter({ ...filter, name: filterName, id: nanoid() });
+    setFilterName("");
+    setFilter({ memo: "", categ: "", enabled: true });
+  }
+
   return (
     <Stack sx={{ flexDirection: "row" }}>
       <TextField
@@ -56,6 +71,16 @@ export default function CurrentFilter({ filter, setFilter }) {
             />
           )}
         />
+        <TextField
+          sx={{ flex: 1, p: 1 }}
+          variant="filled"
+          size="small"
+          value={filterName}
+          onChange={(e) => setFilterName(e.target.value)}
+          label="filter name"
+          error={!!currentFilterNoNameError}
+        />
+        <Button onClick={validateAndSaveFilter}>Save filter</Button>
       </LocalizationProvider>
     </Stack>
   );

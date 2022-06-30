@@ -1,8 +1,7 @@
 import moment from "moment";
 import { useState } from "react";
 
-export default function useFilters(initialFilter) {
-  const [currentFilter, setCurrentFilter] = useState(initialFilter);
+export default function useFilters() {
   const [myFilters, _setMyFilters] = useState(
     (JSON.parse(window.localStorage.getItem("myFilters")) || []).map((f) => {
       return {
@@ -19,11 +18,6 @@ export default function useFilters(initialFilter) {
   }
 
   function saveFilter(f) {
-    setCurrentFilter({
-      memo: "",
-      categ: "",
-      enabled: true,
-    });
     setMyFilters([...myFilters, f]);
   }
 
@@ -40,8 +34,6 @@ export default function useFilters(initialFilter) {
   }
 
   return {
-    currentFilter,
-    setCurrentFilter,
     myFilters,
     saveFilter,
     toggleFilter,

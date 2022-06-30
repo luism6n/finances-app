@@ -13,44 +13,42 @@ import MyFilters from "./MyFilters";
 function App() {
   const [groupBy, setGroupBy] = useState("memo");
   const [openCategorizeDialog, setOpenCategorizeDialog] = useState(false);
-  const {
-    currentFilter,
-    setCurrentFilter,
-    myFilters,
-    saveFilter,
-    toggleFilter,
-    deleteFilter,
-  } = useFilters({
+  const { myFilters, saveFilter, toggleFilter, deleteFilter } = useFilters();
+
+  const { transactions, setCategory, setTransactions, setOpenFiles } =
+    useTransactions();
+  const [currentFilter, setCurrentFilter] = useState({
     memo: "",
     categ: "",
     enabled: true,
   });
 
-  const {
-    setCategory,
-    unfiltered,
-    current,
-    filtered,
-    currentFiltered,
-    ignore,
-    select,
-    setUnfiltered,
-    setOpenFiles,
-  } = useTransactions(currentFilter, myFilters);
   const [fileSelectorOpen, setFileSelectorOpen] = useState(false);
 
-  function ignoreCurrent() {
-    ignore(current);
+  function applyFilters(transactions, filters) {
+    console.log(transactions);
+    let filtered = transactions;
+    for (let f of filters) {
+      if (!f.enabled) {
+        continue;
+      }
+
+      filtered = filtered
+        .filter((t) => t.memo.toLowerCase().includes(f.memo))
+        .filter((t) => t.categ.toLowerCase().includes(f.categ))
+        .filter((t) =>
+          f.minDate && f.minDate.isValid() ? t.date >= f.minDate : true
+        )
+        .filter((t) =>
+          f.maxDate && f.maxDate.isValid() ? t.date <= f.maxDate : true
+        );
+    }
+
+    return filtered;
   }
 
-  function selectCurrent() {
-    select(current);
-  }
-
-  function selectOnly() {
-    ignore(unfiltered);
-    select(current);
-  }
+  console.log({ currentFilter, myFilters, transactions });
+  const filtered = applyFilters(transactions, [...myFilters, currentFilter]);
 
   function openFileSelector() {
     setFileSelectorOpen(true);
@@ -61,14 +59,15 @@ function App() {
       sx={{ margin: "auto", height: "98vh", padding: "1vh", maxWidth: 1200 }}
     >
       <Typography variant="h2">Finances</Typography>
-      <CurrentFilter filter={currentFilter} setFilter={setCurrentFilter} />
+      <CurrentFilter
+        filter={currentFilter}
+        setFilter={setCurrentFilter}
+        saveFilter={saveFilter}
+      />
       <Actions
         {...{
           groupBy,
           setGroupBy,
-          ignoreCurrent,
-          selectCurrent,
-          selectOnly,
           setOpenCategorizeDialog,
           saveFilter,
           currentFilter,
@@ -84,13 +83,9 @@ function App() {
           sx={{ flex: 5, margin: 2 }}
           {...{
             setCategory,
-            current,
-            currentFiltered,
-            ignore,
-            select,
-            setUnfiltered,
-            setOpenFiles,
             filtered,
+            setTransactions,
+            setOpenFiles,
             groupBy,
           }}
         />
@@ -102,7 +97,7 @@ function App() {
       <FileSelector
         open={fileSelectorOpen}
         setOpen={setFileSelectorOpen}
-        setUnfiltered={setUnfiltered}
+        setTransactions={setTransactions}
         setOpenFiles={setOpenFiles}
       ></FileSelector>
 

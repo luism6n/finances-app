@@ -6,34 +6,10 @@ import {
   Radio,
   RadioGroup,
   Stack,
-  TextField,
 } from "@mui/material";
-import { nanoid } from "nanoid";
-import React, { useState } from "react";
+import React from "react";
 
-function Actions({
-  groupBy,
-  setGroupBy,
-  ignoreCurrent,
-  selectCurrent,
-  selectOnly,
-  setOpenCategorizeDialog,
-  saveFilter,
-  currentFilter,
-}) {
-  const [filterName, setFilterName] = useState("");
-  const [currentFilterNoNameError, setCurrentFilterNoNameError] = useState("");
-  function validateAndSaveFilter(e) {
-    if (!filterName) {
-      setCurrentFilterNoNameError("Filter must have a name");
-      return;
-    }
-
-    setCurrentFilterNoNameError("");
-    saveFilter({ ...currentFilter, name: filterName, id: nanoid() });
-    setFilterName("");
-  }
-
+function Actions({ groupBy, setGroupBy, setOpenCategorizeDialog }) {
   return (
     <Stack
       sx={{
@@ -62,18 +38,6 @@ function Actions({
         <Button onClick={() => setOpenCategorizeDialog(true)}>
           Categorize these
         </Button>
-        <Stack>
-          <TextField
-            sx={{ flex: 2, p: 1 }}
-            variant="filled"
-            size="small"
-            value={filterName}
-            onChange={(e) => setFilterName(e.target.value)}
-            label="filter name"
-            error={!!currentFilterNoNameError}
-          />
-          <Button onClick={validateAndSaveFilter}>Save filter</Button>
-        </Stack>
       </Stack>
     </Stack>
   );
