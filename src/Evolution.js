@@ -109,14 +109,22 @@ export default function Evolution({ transactions }) {
     d3.select("#container")
       .select("g.yAxis")
       .attr("transform", `translate(${margin.r})`)
+      .transition()
+      .duration(500)
       .call(yAxis);
 
     d3.select("#container")
       .select("g.xAxis")
       .attr("transform", `translate(0, ${height - margin.b})`)
+      .transition()
+      .duration(500)
       .call(xAxis);
 
-    d3.select("path.lineAtZero").attr("d", lineAtZero).style("stroke", "gray");
+    d3.select("path.lineAtZero")
+      .transition()
+      .duration(500)
+      .attr("d", lineAtZero)
+      .style("stroke", "gray");
 
     const keys = top10Memos;
     for (let i = 0; i < keys.length; i++) {
@@ -139,6 +147,8 @@ export default function Evolution({ transactions }) {
         .selectAll("path")
         .data([pathData])
         .join("path")
+        .transition()
+        .duration(500)
         .attr("d", pathData)
         .style("fill", "none")
         .style("stroke", (d) => {
@@ -146,10 +156,15 @@ export default function Evolution({ transactions }) {
         })
         .style("stroke-width", 3);
 
-      d3.select("#id" + i + ">g.circles")
+      let circles = d3
+        .select("#id" + i + ">g.circles")
         .selectAll("circle")
         .data(points.filter((d) => typeof d[1] !== "undefined"))
-        .join("circle")
+        .join("circle");
+
+      circles
+        .transition()
+        .duration(500)
         .attr("cx", (d) => {
           return xScale(d[0]) + xScale.step() / 2;
         })
@@ -159,7 +174,9 @@ export default function Evolution({ transactions }) {
         .attr("fill", (d) => {
           return colorScale(keys[i]);
         })
-        .attr("r", 5)
+        .attr("r", 5);
+
+      circles
         .on("mouseover", (e) => {
           d3.select(e.srcElement).attr("r", 10);
           setMousedOverKey(keys[i]);
