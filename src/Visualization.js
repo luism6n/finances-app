@@ -13,6 +13,7 @@ import {
   Typography,
 } from "@mui/material";
 import getTransactionsVsDateAxes from "./axes";
+import { motion } from "framer-motion";
 
 export default function Visualization({ transactions }) {
   const [groupBy, setGroupBy] = useState("memo");
@@ -61,14 +62,22 @@ export default function Visualization({ transactions }) {
     d3.select("#container")
       .select("g.yAxis")
       .attr("transform", `translate(${margin.r})`)
+      .transition()
+      .duration(500)
       .call(yAxis);
 
     d3.select("#container")
       .select("g.xAxis")
       .attr("transform", `translate(0, ${height - margin.b})`)
+      .transition()
+      .duration(500)
       .call(xAxis);
 
-    d3.select("path.lineAtZero").attr("d", lineAtZero).style("stroke", "gray");
+    d3.select("path.lineAtZero")
+      .transition()
+      .duration(500)
+      .attr("d", lineAtZero)
+      .style("stroke", "gray");
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [groupBy, transactions, width, height]);
@@ -185,13 +194,17 @@ export default function Visualization({ transactions }) {
             {Array.from(income.entries()).map((d) => {
               return (
                 <Tooltip key={d[0]} title={incomeTitle(d[0])} placement="right">
-                  <rect
-                    x={xScale(d[0])}
-                    y={yScale(d[1])}
-                    height={Math.abs(yScale(0) - yScale(d[1]))}
-                    width={xScale.bandwidth() / 3}
+                  <motion.rect
+                    animate={{
+                      x: xScale(d[0]),
+                      y: yScale(d[1]),
+                      height: Math.abs(yScale(0) - yScale(d[1])),
+                      width: xScale.bandwidth() / 3,
+                    }}
+                    // initial={false}
+                    transition={{ duration: 0.5 }}
                     style={{ fill: "#b3de69" }}
-                  ></rect>
+                  />
                 </Tooltip>
               );
             })}
@@ -204,13 +217,17 @@ export default function Visualization({ transactions }) {
                   title={expensesTitle(d[0])}
                   placement="right"
                 >
-                  <rect
-                    x={xScale(d[0]) + xScale.bandwidth() / 3}
-                    y={yScale(0)}
-                    height={Math.abs(yScale(0) - yScale(d[1]))}
-                    width={xScale.bandwidth() / 3}
+                  <motion.rect
+                    animate={{
+                      x: xScale(d[0]) + xScale.bandwidth() / 3,
+                      y: yScale(0),
+                      height: Math.abs(yScale(0) - yScale(d[1])),
+                      width: xScale.bandwidth() / 3,
+                    }}
+                    // initial={false}
+                    transition={{ duration: 0.5 }}
                     style={{ fill: "#fb8072" }}
-                  ></rect>
+                  ></motion.rect>
                 </Tooltip>
               );
             })}
@@ -219,13 +236,17 @@ export default function Visualization({ transactions }) {
             {Array.from(net.entries()).map((d) => {
               return (
                 <Tooltip key={d[0]} title={netTitle(d[0])} placement="right">
-                  <rect
-                    x={xScale(d[0]) + (2 * xScale.bandwidth()) / 3}
-                    y={Math.min(yScale(0), yScale(d[1]))}
-                    height={Math.abs(yScale(0) - yScale(d[1]))}
-                    width={xScale.bandwidth() / 3}
+                  <motion.rect
+                    animate={{
+                      x: xScale(d[0]) + (2 * xScale.bandwidth()) / 3,
+                      y: Math.min(yScale(0), yScale(d[1])),
+                      height: Math.abs(yScale(0) - yScale(d[1])),
+                      width: xScale.bandwidth() / 3,
+                    }}
+                    // initial={false}
+                    transition={{ duration: 0.5 }}
                     style={{ fill: "#80b1d3" }}
-                  ></rect>
+                  ></motion.rect>
                 </Tooltip>
               );
             })}
