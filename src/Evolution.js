@@ -7,21 +7,25 @@ import {
   FormControl,
   FormControlLabel,
   FormLabel,
+  InputLabel,
+  MenuItem,
   Radio,
   RadioGroup,
+  Select,
   Stack,
   Typography,
 } from "@mui/material";
 import useSize from "./useSize";
 import moment from "moment";
+import useGroups from "./useGroups";
 
 export default function Evolution({ transactions }) {
-  const [groupBy, setGroupBy] = useState("memo");
-  console.log({ groupBy });
-
+  const { width, height, ref } = useSize();
+  const { topGroups, key1, key2, setKey1, setKey2, allKeys, getKey } =
+    useGroups();
   const [mousedOverKey, setMousedOverKey] = useState("");
   const [mousedOverKeyAnnotation, setMousedOverKeyAnnotation] = useState("");
-  const { ref, height, width } = useSize();
+
   const margin = {
     r: 50,
     t: 50,
@@ -29,59 +33,26 @@ export default function Evolution({ transactions }) {
     b: 50,
   };
 
-  function groupByKey(t) {
-    switch (groupBy) {
-      case "memo":
-        return t.memo;
-      case "category":
-        return t.categ;
-      case "weekday":
-        return t.date.format("ddd");
-      default:
-        console.error("unknown groupBy", groupBy);
-    }
-  }
+  const mandatoryKeys = transactions.map((t) => getKey(t, key1));
 
-  const byKey = d3.rollup(
-    transactions,
-    (g) => d3.sum(g, (t) => -t.amount),
-    (t) => groupByKey(t),
-    (t) => t.date.clone().startOf("month")
+  const groups = topGroups(transactions, key2, 8).map((g) => {
+    return {
+      ...g,
+      children: topGroups(g.transactions, key1, -1, mandatoryKeys),
+    };
+  });
+
+  console.log({ groups });
+
+  let maxY = d3.max(groups, (g) => d3.max(g.children, (g) => g.sum));
+  let minY = d3.min(groups, (g) => d3.min(g.children, (g) => g.sum));
+  const { xAxis, xScale, yAxis, yScale } = getTransactionsVsDateAxes(
+    [minY, maxY],
+    mandatoryKeys,
+    width,
+    height,
+    margin
   );
-
-  console.log({ t: transactions.map((t) => t.date.format("ddd")) });
-  console.log({ byKey });
-
-  let maxY = d3.max(
-    Array.from(byKey, ([memo, dates]) => {
-      return d3.max(
-        Array.from(dates, ([date, value]) => {
-          return value;
-        })
-      );
-    })
-  );
-
-  let minY = d3.min(
-    Array.from(byKey, ([memo, dates]) => {
-      return d3.min(
-        Array.from(dates, ([date, value]) => {
-          return value;
-        })
-      );
-    })
-  );
-
-  const top10Memos = Array.from(byKey.keys()).sort(sortMemoKeys).slice(0, 10);
-
-  const { xDomain, xAxis, xScale, yDomain, yAxis, yScale } =
-    getTransactionsVsDateAxes(
-      [minY, maxY],
-      d3.extent(transactions, (t) => t.date),
-      width,
-      height,
-      margin
-    );
 
   const lineAtZero = d3.line()([
     [margin.l, yScale(0)],
@@ -90,7 +61,7 @@ export default function Evolution({ transactions }) {
 
   let colorScale = d3
     .scaleOrdinal()
-    .domain(top10Memos)
+    .domain(groups.map((g) => g.key))
     .range([
       "#a6cee3",
       "#1f78b4",
@@ -105,36 +76,40 @@ export default function Evolution({ transactions }) {
       "#ffff99",
       "#b15928",
     ]);
+
   useEffect(() => {
     d3.select("#container")
       .select("g.yAxis")
       .attr("transform", `translate(${margin.r})`)
+      .transition()
+      .duration(500)
       .call(yAxis);
 
     d3.select("#container")
       .select("g.xAxis")
       .attr("transform", `translate(0, ${height - margin.b})`)
+      .transition()
+      .duration(500)
       .call(xAxis);
 
-    d3.select("path.lineAtZero").attr("d", lineAtZero).style("stroke", "gray");
+    d3.select("path.lineAtZero")
+      .transition()
+      .duration(500)
+      .attr("d", lineAtZero)
+      .style("stroke", "gray");
 
-    const keys = top10Memos;
-    for (let i = 0; i < keys.length; i++) {
-      let t = byKey.get(keys[i]);
+    for (let i = 0; i < groups.length; i++) {
+      const g = groups[i];
+      const points = g.children.map((g) => [g.key, g.sum]);
+      console.log({ points });
 
-      const points = xDomain.map((d) => [
-        d,
-        t.get(moment(d, "YY/MM").startOf("month")),
-      ]);
-
-      // const points = Array.from(t.entries());
       const lineGenerator = d3
         .line()
-        .defined((d) => typeof d[1] !== "undefined")
-        .x((d) => xScale(d[0]) + xScale.step() / 2)
+        .x((d) => xScale(d[0]) + xScale.step() / 4)
         .y((d) => yScale(d[1]));
 
       const pathData = lineGenerator(points);
+
       d3.select("#id" + i + ">g.lines")
         .selectAll("path")
         .data([pathData])
@@ -142,7 +117,7 @@ export default function Evolution({ transactions }) {
         .attr("d", pathData)
         .style("fill", "none")
         .style("stroke", (d) => {
-          return colorScale(keys[i]);
+          return colorScale(g.key);
         })
         .style("stroke-width", 3);
 
@@ -151,81 +126,93 @@ export default function Evolution({ transactions }) {
         .data(points.filter((d) => typeof d[1] !== "undefined"))
         .join("circle")
         .attr("cx", (d) => {
-          return xScale(d[0]) + xScale.step() / 2;
+          return xScale(d[0]) + xScale.step() / 4;
         })
         .attr("cy", (d) => {
           return yScale(d[1]);
         })
         .attr("fill", (d) => {
-          return colorScale(keys[i]);
+          return colorScale(g.key);
         })
         .attr("r", 5)
         .on("mouseover", (e) => {
           d3.select(e.srcElement).attr("r", 10);
-          setMousedOverKey(keys[i]);
+          setMousedOverKey(g.key);
           setMousedOverKeyAnnotation(e.srcElement.__data__[0]);
         })
         .on("mouseout", (e) => {
           d3.select(e.srcElement).attr("r", 5);
         });
     }
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transactions, width, height, groupBy]);
-
-  function sortMemoKeys(k1, k2) {
-    return (
-      Math.abs(d3.sum(byKey.get(k2).values())) -
-      Math.abs(d3.sum(byKey.get(k1).values()))
-    );
-  }
+  }, [key1, key2, transactions, width, height]);
 
   return (
     <Stack sx={{ flex: 1, height: "100%" }}>
-      <FormControl component="fieldset">
-        <FormLabel component="legend">Group By</FormLabel>
-        <RadioGroup
-          row
-          aria-label="groupby options"
-          name="groupby"
-          value={groupBy}
-          onChange={(e) => setGroupBy(e.target.value)}
+      <Stack sx={{ flexDirection: "row", alignItems: "center", gap: 2 }}>
+        <InputLabel id="key1Label">Group by</InputLabel>
+        <Select
+          labelId="key1Label"
+          value={key1}
+          onChange={(e) => setKey1(e.target.value)}
+          size="small"
         >
-          <FormControlLabel value="memo" control={<Radio />} label="memo" />
-          <FormControlLabel
-            value="category"
-            control={<Radio />}
-            label="category"
-          />
-          <FormControlLabel
-            value="weekday"
-            control={<Radio />}
-            label="weekday"
-          />
-        </RadioGroup>
-      </FormControl>
-
-      <Box height="100%" ref={ref}>
-        <Typography
-          align="center"
-          height={20}
-          color={colorScale(mousedOverKey)}
+          {allKeys.map((k) => (
+            <MenuItem key={k} value={k}>
+              {k}
+            </MenuItem>
+          ))}
+        </Select>
+        <InputLabel id="key2Label">Then by</InputLabel>
+        <Select
+          labelId="key2Label"
+          value={key2}
+          onChange={(e) => setKey2(e.target.value)}
+          size="small"
         >
-          <strong>{mousedOverKey}</strong> {mousedOverKeyAnnotation}
-        </Typography>
+          {allKeys.map((k) => (
+            <MenuItem key={k} value={k}>
+              {k}
+            </MenuItem>
+          ))}
+        </Select>
+      </Stack>
 
+      <Stack
+        sx={{
+          justifyContent: "center",
+          marginTop: 2,
+          gap: 2,
+          flexDirection: "row",
+        }}
+      >
+        {groups.map((g) => (
+          <Typography
+            key={g.key}
+            sx={{
+              fontWeight: g.key === mousedOverKey ? "bold" : "lighter",
+              textDecoration: g.key === mousedOverKey ? "underline" : "none",
+              color: colorScale(g.key),
+            }}
+          >
+            {g.key}
+          </Typography>
+        ))}
+      </Stack>
+
+      <Box ref={ref} sx={{ height: "100%" }}>
         <svg height="100%" width="100%" id="container">
           <g className="xAxis"></g>
           <path className="lineAtZero"></path>
-          {top10Memos.map((memo, i) => {
+          <g className="yAxis"></g>
+          {groups.map((g, i) => {
             return (
-              <g key={memo} id={"id" + i}>
+              <g key={g.key} id={"id" + i}>
                 <g className="lines"></g>
                 <g className="circles"></g>
               </g>
             );
           })}
-          <g className="yAxis"></g>;
         </svg>
       </Box>
     </Stack>

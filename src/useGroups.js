@@ -81,5 +81,6 @@ export default function useGroups(initialKey1, initialKey2) {
     setKey2,
     topGroups,
     allKeys,
+    getKey,
   };
 }
