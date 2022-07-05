@@ -1,24 +1,28 @@
-import React, { useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import * as d3 from "d3";
 import useSize from "./useSize";
 import {
   Box,
-  FormControl,
-  FormControlLabel,
-  FormLabel,
-  Radio,
-  RadioGroup,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Select,
   Stack,
   Tooltip,
   Typography,
 } from "@mui/material";
 import getTransactionsVsDateAxes from "./axes";
 import { motion } from "framer-motion";
+import { formatMoney } from "./utils";
+import moment from "moment";
 
 export default function Visualization({ transactions }) {
-  const [groupBy, setGroupBy] = useState("memo");
+  const [key1, setKey1] = useState("month");
+  const [key2, setKey2] = useState("category");
 
-  const { ref, height, width } = useSize();
+  const { width, height, ref } = useSize();
+
+  console.log({ key1, key2, width, height });
 
   const margin = {
     r: 50,
@@ -27,27 +31,95 @@ export default function Visualization({ transactions }) {
     b: 50,
   };
 
-  const expenses = d3.rollup(
-    transactions.filter((t) => t.amount < 0),
-    (g) => d3.sum(g, (t) => t.amount),
-    (t) => t.date.format("YY/MM")
-  );
+  function getKey(t, key) {
+    switch (key) {
+      case "month":
+        return t.date.format("MM/YY");
+      case "weekday":
+        return t.date.format("ddd");
+      case "category":
+        return t.categ;
+      case "description":
+        return t.memo;
+      default:
+        console.error(`unknown key ${key}`);
+    }
+  }
 
-  const income = d3.rollup(
-    transactions.filter((t) => t.amount >= 0),
-    (g) => d3.sum(g, (t) => t.amount),
-    (t) => t.date.format("YY/MM")
-  );
+  function topGroups(transactions, key, numGroups, reverse) {
+    reverse = reverse ? -1 : 1;
 
-  const net = d3.rollup(
-    transactions,
-    (g) => d3.sum(g, (t) => t.amount),
-    (t) => t.date.format("YY/MM")
-  );
+    function sortKeyValues([k1, v1], [k2, v2]) {
+      if (key === "month") {
+        return reverse * (moment(k2, "MM/YY") - moment(k1, "MM/YY"));
+      }
+
+      if (key === "weekday") {
+        return (
+          reverse *
+          (moment(k2, "ddd").isoWeekday() - moment(k1, "ddd").isoWeekday())
+        );
+      }
+
+      return reverse * (v2 - v1);
+    }
+
+    let topKeys = Array.from(
+      d3.rollup(
+        transactions,
+        (g) => d3.sum(g, (t) => t.amount),
+        (t) => getKey(t, key)
+      )
+    )
+      .sort(sortKeyValues)
+      .map(([k, v]) => k);
+
+    if (key !== "month" && topKeys.length > numGroups) {
+      topKeys = topKeys.slice(0, numGroups - 1);
+      topKeys.push("Others");
+    }
+
+    let groups = d3.group(transactions, (t) => {
+      if (topKeys.indexOf(getKey(t, key)) < 0) {
+        return "Others";
+      }
+
+      return getKey(t, key);
+    });
+
+    return Array.from(groups)
+      .sort(([k1, v1], [k2, v2]) => topKeys.indexOf(k1) - topKeys.indexOf(k2))
+      .map(([k, t]) => {
+        return {
+          key: k,
+          transactions: t,
+          sum: d3.sum(t, (t) => t.amount),
+        };
+      });
+  }
+
+  const expenses = {
+    groups: topGroups(
+      transactions.filter((t) => t.amount < 0),
+      key1,
+      8,
+      true
+    ).map((g) => {
+      return {
+        ...g,
+        children: topGroups(g.transactions, key2, 10, true),
+      };
+    }),
+  };
+
+  console.log({ expenses });
 
   const { xAxis, xScale, yAxis, yScale } = getTransactionsVsDateAxes(
-    [d3.min([...expenses.values(), 0]), d3.max([...income.values(), 0])],
-    d3.extent(transactions, (t) => t.date),
+    [
+      d3.min([...expenses.groups.map((g) => g.sum), 0]),
+      d3.max([...expenses.groups.map((g) => g.sum), 0]),
+    ],
+    expenses.groups.map((g) => g.key),
     width,
     height,
     margin
@@ -80,176 +152,85 @@ export default function Visualization({ transactions }) {
       .style("stroke", "gray");
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [groupBy, transactions, width, height]);
+  }, [key1, key2, transactions, width, height]);
 
-  function groupByKey(t) {
-    switch (groupBy) {
-      case "memo":
-        return t.memo;
-      case "category":
-        return t.categ;
-      case "weekday":
-        return t.date.format("ddd");
-      default:
-        console.error("unknown groupBy", groupBy);
-    }
-  }
-
-  const biggestExpensesByMemo = d3.rollup(
-    transactions.filter((t) => t.amount < 0),
-    (g) => d3.sum(g, (d) => -d.amount),
-    (d) => d.date.format("YY/MM"),
-    (d) => groupByKey(d)
-  );
-  function expensesTitle(yearMonth) {
-    const biggestExpensesThisMonth = biggestExpensesByMemo.get(yearMonth);
-    let total = d3.sum(biggestExpensesThisMonth.entries(), ([d, v]) => v);
-
+  function smallSummary(total, groups) {
     return (
-      <Stack max-height="100%">
-        <Typography>Expenses: {total}</Typography>
-        {Array.from(biggestExpensesThisMonth.entries())
-          .sort((d1, d2) => d2[1] - d1[1])
-          .slice(0, 10)
-          .map((d) => {
-            return (
-              <Typography key={d[0]} variant="body2">
-                {d[0]}: {d[1]}
-              </Typography>
-            );
-          })}
-      </Stack>
-    );
-  }
+      <Grid width={200} container>
+        <Grid item xs={7}>
+          <Typography>Total</Typography>
+        </Grid>
+        <Grid item xs={5}>
+          <Typography>{formatMoney(total)}</Typography>
+        </Grid>
 
-  function incomeTitle(yearMonth) {
-    let income = transactions
-      .filter((t) => t.amount >= 0)
-      .filter((t) => t.date.format("YY/MM") === yearMonth);
-    let total = d3.sum(income, (t) => t.amount);
-    return (
-      <Stack>
-        <Typography>Income: {total}</Typography>
-        {income
-          .sort((t1, t2) => t1.amount - t2.amount[1])
-          .slice(0, 5)
-          .map((t) => {
-            return (
-              <Typography key={t.id} variant="body2">
-                {t.memo}: {t.amount}
-              </Typography>
-            );
-          })}
-      </Stack>
-    );
-  }
-
-  const netByMonth = d3.rollup(
-    transactions,
-    (g) => d3.sum(g, (d) => d.amount),
-    (d) => d.date.format("YY/MM")
-  );
-  function netTitle(yearMonth) {
-    const netThisMonth = netByMonth.get(yearMonth);
-
-    return (
-      <Stack>
-        <Typography>Net</Typography>
-        <Typography variant="body2">Total: {netThisMonth}</Typography>
-      </Stack>
+        {groups.map((g) => (
+          <Fragment key={g.key}>
+            <Grid item xs={7}>
+              <Typography>{g.key}</Typography>
+            </Grid>
+            <Grid item xs={5}>
+              <Typography>{formatMoney(g.sum)}</Typography>
+            </Grid>
+          </Fragment>
+        ))}
+      </Grid>
     );
   }
 
   return (
     <Stack sx={{ flex: 1, height: "100%" }}>
-      <FormControl component="fieldset">
-        <FormLabel component="legend">Group By</FormLabel>
-        <RadioGroup
-          row
-          aria-label="groupby options"
-          name="groupby"
-          value={groupBy}
-          onChange={(e) => setGroupBy(e.target.value)}
+      <Stack sx={{ flexDirection: "row", alignItems: "center", gap: 2 }}>
+        <InputLabel id="key1Label">Group by</InputLabel>
+        <Select
+          labelId="key1Label"
+          value={key1}
+          onChange={(e) => setKey1(e.target.value)}
+          size="small"
         >
-          <FormControlLabel value="memo" control={<Radio />} label="memo" />
-          <FormControlLabel
-            value="category"
-            control={<Radio />}
-            label="category"
-          />
-          <FormControlLabel
-            value="weekday"
-            control={<Radio />}
-            label="weekday"
-          />
-        </RadioGroup>
-      </FormControl>
+          <MenuItem value="weekday">Weekday</MenuItem>
+          <MenuItem value="month">Month</MenuItem>
+          <MenuItem value="category">Category</MenuItem>
+          <MenuItem value="description">Description</MenuItem>
+        </Select>
+        <InputLabel id="key2Label">Then by</InputLabel>
+        <Select
+          labelId="key2Label"
+          value={key2}
+          onChange={(e) => setKey2(e.target.value)}
+          size="small"
+        >
+          <MenuItem value="weekday">Weekday</MenuItem>
+          <MenuItem value="month">Month</MenuItem>
+          <MenuItem value="category">Category</MenuItem>
+          <MenuItem value="description">Description</MenuItem>
+        </Select>
+      </Stack>
 
-      <Box height="100%" ref={ref}>
+      <Box ref={ref} sx={{ height: "100%" }}>
         <svg height="100%" width="100%" id="container">
           <g className="xAxis"></g>
           <path className="lineAtZero"></path>
           <g className="yAxis"></g>
-          <g className="income">
-            {Array.from(income.entries()).map((d) => {
-              return (
-                <Tooltip key={d[0]} title={incomeTitle(d[0])} placement="right">
-                  <motion.rect
-                    animate={{
-                      x: xScale(d[0]),
-                      y: yScale(d[1]),
-                      height: Math.abs(yScale(0) - yScale(d[1])),
-                      width: xScale.bandwidth() / 3,
-                    }}
-                    // initial={false}
-                    transition={{ duration: 0.5 }}
-                    style={{ fill: "#b3de69" }}
-                  />
-                </Tooltip>
-              );
-            })}
-          </g>
           <g className="expenses">
-            {Array.from(expenses.entries()).map((d) => {
-              return (
-                <Tooltip
-                  key={d[0]}
-                  title={expensesTitle(d[0])}
-                  placement="right"
-                >
-                  <motion.rect
-                    animate={{
-                      x: xScale(d[0]) + xScale.bandwidth() / 3,
-                      y: yScale(0),
-                      height: Math.abs(yScale(0) - yScale(d[1])),
-                      width: xScale.bandwidth() / 3,
-                    }}
-                    // initial={false}
-                    transition={{ duration: 0.5 }}
-                    style={{ fill: "#fb8072" }}
-                  ></motion.rect>
-                </Tooltip>
-              );
-            })}
-          </g>
-          <g className="net">
-            {Array.from(net.entries()).map((d) => {
-              return (
-                <Tooltip key={d[0]} title={netTitle(d[0])} placement="right">
-                  <motion.rect
-                    animate={{
-                      x: xScale(d[0]) + (2 * xScale.bandwidth()) / 3,
-                      y: Math.min(yScale(0), yScale(d[1])),
-                      height: Math.abs(yScale(0) - yScale(d[1])),
-                      width: xScale.bandwidth() / 3,
-                    }}
-                    // initial={false}
-                    transition={{ duration: 0.5 }}
-                    style={{ fill: "#80b1d3" }}
-                  ></motion.rect>
-                </Tooltip>
-              );
-            })}
+            {expenses.groups.map((g) => (
+              <Tooltip
+                key={g.key}
+                title={smallSummary(g.sum, g.children)}
+                placement="right"
+              >
+                <motion.rect
+                  animate={{
+                    x: xScale(g.key) + xScale.bandwidth() / 3,
+                    y: yScale(0),
+                    height: Math.abs(yScale(0) - yScale(g.sum)),
+                    width: xScale.bandwidth() / 3,
+                  }}
+                  transition={{ duration: 0.5 }}
+                  style={{ fill: "#fb8072" }}
+                ></motion.rect>
+              </Tooltip>
+            ))}
           </g>
         </svg>
       </Box>
