@@ -13,8 +13,8 @@ function getTransactionsVsDateAxes(yExtent, xDomain, width, height, margin) {
     .scaleBand()
     .domain(xDomain)
     .range([margin.l, width - margin.r])
-    .paddingOuter(0.1)
-    .paddingInner(0.1);
+    .paddingOuter(0.5)
+    .paddingInner(0.5);
 
   const xAxis = d3.axisBottom(xScale);
 

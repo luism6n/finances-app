@@ -14,15 +14,11 @@ import {
 import getTransactionsVsDateAxes from "./axes";
 import { motion } from "framer-motion";
 import { formatMoney } from "./utils";
-import moment from "moment";
+import useGroups from "./useGroups";
 
 export default function Visualization({ transactions }) {
-  const [key1, setKey1] = useState("month");
-  const [key2, setKey2] = useState("category");
-
   const { width, height, ref } = useSize();
-
-  console.log({ key1, key2, width, height });
+  const { topGroups, key1, key2, setKey1, setKey2, allKeys } = useGroups();
 
   const margin = {
     r: 50,
@@ -31,95 +27,50 @@ export default function Visualization({ transactions }) {
     b: 50,
   };
 
-  function getKey(t, key) {
-    switch (key) {
-      case "month":
-        return t.date.format("MM/YY");
-      case "weekday":
-        return t.date.format("ddd");
-      case "category":
-        return t.categ;
-      case "description":
-        return t.memo;
-      default:
-        console.error(`unknown key ${key}`);
-    }
-  }
-
-  function topGroups(transactions, key, numGroups, reverse) {
-    reverse = reverse ? -1 : 1;
-
-    function sortKeyValues([k1, v1], [k2, v2]) {
-      if (key === "month") {
-        return reverse * (moment(k2, "MM/YY") - moment(k1, "MM/YY"));
-      }
-
-      if (key === "weekday") {
-        return (
-          reverse *
-          (moment(k2, "ddd").isoWeekday() - moment(k1, "ddd").isoWeekday())
-        );
-      }
-
-      return reverse * (v2 - v1);
-    }
-
-    let topKeys = Array.from(
-      d3.rollup(
-        transactions,
-        (g) => d3.sum(g, (t) => t.amount),
-        (t) => getKey(t, key)
-      )
-    )
-      .sort(sortKeyValues)
-      .map(([k, v]) => k);
-
-    if (key !== "month" && topKeys.length > numGroups) {
-      topKeys = topKeys.slice(0, numGroups - 1);
-      topKeys.push("Others");
-    }
-
-    let groups = d3.group(transactions, (t) => {
-      if (topKeys.indexOf(getKey(t, key)) < 0) {
-        return "Others";
-      }
-
-      return getKey(t, key);
-    });
-
-    return Array.from(groups)
-      .sort(([k1, v1], [k2, v2]) => topKeys.indexOf(k1) - topKeys.indexOf(k2))
-      .map(([k, t]) => {
-        return {
-          key: k,
-          transactions: t,
-          sum: d3.sum(t, (t) => t.amount),
-        };
-      });
-  }
+  const net = {
+    groups: topGroups(transactions, key1, 8).map((g) => {
+      return {
+        ...g,
+        children: topGroups(g.transactions, key2, 10),
+      };
+    }),
+  };
 
   const expenses = {
     groups: topGroups(
       transactions.filter((t) => t.amount < 0),
       key1,
       8,
-      true
+      net.groups.map((g) => g.key)
     ).map((g) => {
       return {
         ...g,
-        children: topGroups(g.transactions, key2, 10, true),
+        children: topGroups(g.transactions, key2, 10),
       };
     }),
   };
 
-  console.log({ expenses });
+  const income = {
+    groups: topGroups(
+      transactions.filter((t) => t.amount > 0),
+      key1,
+      8,
+      net.groups.map((g) => g.key)
+    ).map((g) => {
+      return {
+        ...g,
+        children: topGroups(g.transactions, key2, 10),
+      };
+    }),
+  };
 
+  console.log(net.groups);
   const { xAxis, xScale, yAxis, yScale } = getTransactionsVsDateAxes(
     [
       d3.min([...expenses.groups.map((g) => g.sum), 0]),
-      d3.max([...expenses.groups.map((g) => g.sum), 0]),
+      d3.max([...income.groups.map((g) => g.sum), 0]),
     ],
-    expenses.groups.map((g) => g.key),
+    net.groups.map((g) => g.key),
     width,
     height,
     margin
@@ -154,11 +105,11 @@ export default function Visualization({ transactions }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key1, key2, transactions, width, height]);
 
-  function smallSummary(total, groups) {
+  function smallSummary(title, total, groups) {
     return (
       <Grid width={200} container>
         <Grid item xs={7}>
-          <Typography>Total</Typography>
+          <Typography>{title}</Typography>
         </Grid>
         <Grid item xs={5}>
           <Typography>{formatMoney(total)}</Typography>
@@ -178,6 +129,8 @@ export default function Visualization({ transactions }) {
     );
   }
 
+  console.log({ income });
+
   return (
     <Stack sx={{ flex: 1, height: "100%" }}>
       <Stack sx={{ flexDirection: "row", alignItems: "center", gap: 2 }}>
@@ -188,10 +141,11 @@ export default function Visualization({ transactions }) {
           onChange={(e) => setKey1(e.target.value)}
           size="small"
         >
-          <MenuItem value="weekday">Weekday</MenuItem>
-          <MenuItem value="month">Month</MenuItem>
-          <MenuItem value="category">Category</MenuItem>
-          <MenuItem value="description">Description</MenuItem>
+          {allKeys.map((k) => (
+            <MenuItem key={k} value={k}>
+              {k}
+            </MenuItem>
+          ))}
         </Select>
         <InputLabel id="key2Label">Then by</InputLabel>
         <Select
@@ -200,10 +154,11 @@ export default function Visualization({ transactions }) {
           onChange={(e) => setKey2(e.target.value)}
           size="small"
         >
-          <MenuItem value="weekday">Weekday</MenuItem>
-          <MenuItem value="month">Month</MenuItem>
-          <MenuItem value="category">Category</MenuItem>
-          <MenuItem value="description">Description</MenuItem>
+          {allKeys.map((k) => (
+            <MenuItem key={k} value={k}>
+              {k}
+            </MenuItem>
+          ))}
         </Select>
       </Stack>
 
@@ -212,11 +167,31 @@ export default function Visualization({ transactions }) {
           <g className="xAxis"></g>
           <path className="lineAtZero"></path>
           <g className="yAxis"></g>
+          <g className="income">
+            {income.groups.map((g) => (
+              <Tooltip
+                key={g.key}
+                title={smallSummary("Income", g.sum, g.children)}
+                placement="right"
+              >
+                <motion.rect
+                  animate={{
+                    x: xScale(g.key),
+                    y: yScale(g.sum),
+                    height: Math.abs(yScale(0) - yScale(g.sum)),
+                    width: xScale.bandwidth() / 3,
+                  }}
+                  transition={{ duration: 0.5 }}
+                  style={{ fill: "#b3de69" }}
+                ></motion.rect>
+              </Tooltip>
+            ))}
+          </g>
           <g className="expenses">
             {expenses.groups.map((g) => (
               <Tooltip
                 key={g.key}
-                title={smallSummary(g.sum, g.children)}
+                title={smallSummary("Expenses", g.sum, g.children)}
                 placement="right"
               >
                 <motion.rect
@@ -228,6 +203,26 @@ export default function Visualization({ transactions }) {
                   }}
                   transition={{ duration: 0.5 }}
                   style={{ fill: "#fb8072" }}
+                ></motion.rect>
+              </Tooltip>
+            ))}
+          </g>
+          <g className="net">
+            {net.groups.map((g) => (
+              <Tooltip
+                key={g.key}
+                title={smallSummary("Net", g.sum, g.children)}
+                placement="right"
+              >
+                <motion.rect
+                  animate={{
+                    x: xScale(g.key) + (2 * xScale.bandwidth()) / 3,
+                    y: Math.min(yScale(0), yScale(g.sum)),
+                    height: Math.abs(yScale(0) - yScale(g.sum)),
+                    width: xScale.bandwidth() / 3,
+                  }}
+                  transition={{ duration: 0.5 }}
+                  style={{ fill: "#80b1d3" }}
                 ></motion.rect>
               </Tooltip>
             ))}
