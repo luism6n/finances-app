@@ -12,6 +12,8 @@ export default function CurrentFilter({ filter, setFilter, saveFilter }) {
 
   const [currentFilterNoNameError, setCurrentFilterNoNameError] = useState("");
   function validateAndSaveFilter(e) {
+    e.preventDefault();
+
     if (!filterName) {
       setCurrentFilterNoNameError("Filter must have a name");
       return;
