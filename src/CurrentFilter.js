@@ -20,6 +20,7 @@ export default function CurrentFilter({ filter, setFilter, saveFilter }) {
     setCurrentFilterNoNameError("");
     saveFilter({ ...filter, name: filterName, id: nanoid() });
     setFilterName("");
+    setQuery("");
     setFilter({ query: "", enabled: true });
   }
 
@@ -39,25 +40,29 @@ export default function CurrentFilter({ filter, setFilter, saveFilter }) {
   }
 
   return (
-    <Stack sx={{ my: 1, flexDirection: "row" }}>
-      <TextField
-        sx={{ flex: 3, pr: 1 }}
-        variant="filled"
-        size="small"
-        value={query}
-        onChange={(e) => onQueryChange(e.target.value)}
-        label="Search query"
-      />
-      <TextField
-        sx={{ flex: 1, pr: 1 }}
-        variant="filled"
-        size="small"
-        value={filterName}
-        onChange={(e) => setFilterName(e.target.value)}
-        label="Filter name"
-        error={!!currentFilterNoNameError}
-      />
-      <Button onClick={validateAndSaveFilter}>Save filter</Button>
-    </Stack>
+    <form>
+      <Stack sx={{ my: 1, flexDirection: "row" }}>
+        <TextField
+          sx={{ flex: 3, pr: 1 }}
+          variant="filled"
+          size="small"
+          value={query}
+          onChange={(e) => onQueryChange(e.target.value)}
+          label="Search query"
+        />
+        <TextField
+          sx={{ flex: 1, pr: 1 }}
+          variant="filled"
+          size="small"
+          value={filterName}
+          onChange={(e) => setFilterName(e.target.value)}
+          label="Filter name"
+          error={!!currentFilterNoNameError}
+        />
+        <Button type="submit" onClick={validateAndSaveFilter}>
+          Save filter
+        </Button>
+      </Stack>
+    </form>
   );
 }
