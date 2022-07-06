@@ -40,7 +40,7 @@ export default function CurrentFilter({ filter, setFilter, saveFilter }) {
   }
 
   return (
-    <form>
+    <form style={{ width: "100%" }}>
       <Stack sx={{ my: 1, flexDirection: "row" }}>
         <TextField
           sx={{ flex: 3, pr: 1 }}

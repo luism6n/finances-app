@@ -32,7 +32,7 @@ export default function MyFilters({
 }) {
   return (
     <Stack sx={{ ...sx }}>
-      <Typography variant="h4">My Filters</Typography>
+      <Typography variant="h5">Saved filters</Typography>
       <Box sx={{ overflowY: "scroll" }}>
         {myFilters.map((f) => (
           <MyFilter

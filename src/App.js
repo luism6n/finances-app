@@ -99,12 +99,16 @@ function App() {
     <Stack
       sx={{ margin: "auto", height: "98vh", padding: "1vh", maxWidth: 1200 }}
     >
-      <Typography variant="h2">Finances</Typography>
-      <CurrentFilter
-        filter={currentFilter}
-        setFilter={setCurrentFilter}
-        saveFilter={saveFilter}
-      />
+      <Stack sx={{ flexDirection: "row", alignItems: "center" }}>
+        <Typography sx={{ marginRight: 2 }} variant="h2">
+          Finances
+        </Typography>
+        <CurrentFilter
+          filter={currentFilter}
+          setFilter={setCurrentFilter}
+          saveFilter={saveFilter}
+        />
+      </Stack>
 
       <Stack sx={{ overflow: "hidden", flex: 1, flexDirection: "row" }}>
         <MyFilters
