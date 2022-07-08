@@ -1,8 +1,8 @@
 # Todo
 
-- add ranges to search
 - add docs
-- make naming consistent
+- clean up repo
+- add ranges to search
 - use tags instead of categories
 - give the app a name
   - yafa
@@ -10,14 +10,13 @@
 - duplicate detection
 - sorting
 - add integration with nubank API: https://github.com/Astrocoders/nubank-api
-- rename memo to description
-- brush to select date range
 - click to see expenses in that month
 - important date markers
-- think of a better name for filters (actions? steps?)
 
 # Done
 
+- rename memo to description
+- make naming consistent
 - move categorize selection to Transactions
 - add advanced query
 - add headers to Transactions
