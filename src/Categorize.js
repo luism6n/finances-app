@@ -48,6 +48,10 @@ export default function Categorize({ transactions, setCategory }) {
 
   console.log({ largestMemos });
 
+  if (largestMemos.length === 0) {
+    return "All transactions have a category already";
+  }
+
   return (
     <Stack
       sx={{
