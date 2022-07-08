@@ -17,6 +17,10 @@ import {
 import moment from "moment";
 import { nanoid } from "nanoid";
 import React, { useState } from "react";
+import {
+  useCsvColumnsConfig,
+  CsvColumnsPreviewAndConfig,
+} from "./CsvColumnsPreviewAndConfig";
 import { parseCSV } from "./utils";
 
 export default function FileSelector({
@@ -28,6 +32,7 @@ export default function FileSelector({
   const [erasePrevious, setErasePrevious] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [selectedFilesFormat, setSelectedFilesFormat] = useState("nubank cc");
+  const [csvColumnsConfig, setCsvColumnsConfig] = useCsvColumnsConfig();
 
   async function loadFiles() {
     if (selectedFiles.length === 0) {
@@ -100,6 +105,7 @@ export default function FileSelector({
 
     setOpen(false);
   }
+
   return (
     <Dialog
       aria-labelledby="file-selector-title"
@@ -109,7 +115,15 @@ export default function FileSelector({
     >
       <DialogTitle>Select files</DialogTitle>
       <DialogContent>
-        <Stack>
+        <Stack
+          sx={{
+            overflowY: "scroll",
+            justifyContent: "space-between",
+            alignItems: "center",
+            width: "100%",
+            height: "100%",
+          }}
+        >
           <Input
             sx={{ marginBottom: 3 }}
             onChange={(e) => setSelectedFiles(e.target.files)}
@@ -117,26 +131,12 @@ export default function FileSelector({
             inputProps={{ multiple: true }}
             type="file"
           ></Input>
-          <FormControl component="fieldset">
-            <FormLabel component="legend">Format</FormLabel>
-            <RadioGroup
-              aria-label="gender"
-              name="gender1"
-              value={selectedFilesFormat}
-              onChange={(e) => setSelectedFilesFormat(e.target.value)}
-            >
-              <FormControlLabel
-                value="nubank credit card"
-                control={<Radio />}
-                label="Nubank Credit Card"
-              />
-              <FormControlLabel
-                value="nubank account"
-                control={<Radio />}
-                label="Nubank Account"
-              />
-            </RadioGroup>
-          </FormControl>
+
+          <CsvColumnsPreviewAndConfig
+            {...{ csvColumnsConfig, setCsvColumnsConfig }}
+            file={selectedFiles.length > 0 ? selectedFiles[0] : null}
+          />
+
           <FormGroup>
             <FormControlLabel
               control={

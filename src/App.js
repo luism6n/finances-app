@@ -71,7 +71,6 @@ function App() {
       }
 
       let q = f.query;
-      console.log({ q });
 
       filtered = filtered
         .filter((t) =>
