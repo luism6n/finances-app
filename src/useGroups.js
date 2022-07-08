@@ -22,14 +22,24 @@ export default function useGroups(initialKey1, initialKey2) {
     }
   }
 
-  function topGroups(transactions, key, numGroups, mandatoryTopKeys) {
+  function topGroups(
+    transactions,
+    key,
+    numGroups,
+    mandatoryTopKeys,
+    ellipsize
+  ) {
     function sortKeyValues([k1, v1], [k2, v2]) {
-      if (key === "Month") {
-        return moment(k1, "MM/YY") - moment(k2, "MM/YY");
-      }
+      if (!ellipsize) {
+        if (key === "Month") {
+          return moment(k1, "MM/YY") - moment(k2, "MM/YY");
+        }
 
-      if (key === "Weekday") {
-        return moment(k1, "ddd").isoWeekday() - moment(k2, "ddd").isoWeekday();
+        if (key === "Weekday") {
+          return (
+            moment(k1, "ddd").isoWeekday() - moment(k2, "ddd").isoWeekday()
+          );
+        }
       }
 
       return v2 - v1;
@@ -50,7 +60,7 @@ export default function useGroups(initialKey1, initialKey2) {
         .sort(sortKeyValues)
         .map(([k, v]) => k);
 
-      if (key !== "Month" && topKeys.length > numGroups) {
+      if ((key !== "Month" && topKeys.length > numGroups) || ellipsize) {
         topKeys = topKeys.slice(0, numGroups - 1);
         topKeys.push("Others");
       }

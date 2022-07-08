@@ -33,9 +33,21 @@ export default function Evolution({ transactions }) {
     b: 50,
   };
 
-  const mandatoryKeys = transactions.map((t) => getKey(t, key1));
+  const mandatoryKeys = transactions
+    .map((t) => getKey(t, key1))
+    .sort((k1, k2) => {
+      if (key1 === "Month") {
+        return moment(k1, "MM/YY") - moment(k2, "MM/YY");
+      }
 
-  const groups = topGroups(transactions, key2, 8).map((g) => {
+      if (key1 === "Weekday") {
+        return moment(k1, "ddd").isoWeekday() - moment(k2, "ddd").isoWeekday();
+      }
+
+      return k1 - k2;
+    });
+
+  const groups = topGroups(transactions, key2, 8, undefined, true).map((g) => {
     return {
       ...g,
       children: topGroups(g.transactions, key1, -1, mandatoryKeys),

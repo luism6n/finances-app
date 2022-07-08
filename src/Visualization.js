@@ -31,7 +31,7 @@ export default function Visualization({ transactions }) {
     groups: topGroups(transactions, key1, 8).map((g) => {
       return {
         ...g,
-        children: topGroups(g.transactions, key2, 10),
+        children: topGroups(g.transactions, key2, 10, undefined, true),
       };
     }),
   };
@@ -45,7 +45,7 @@ export default function Visualization({ transactions }) {
     ).map((g) => {
       return {
         ...g,
-        children: topGroups(g.transactions, key2, 10),
+        children: topGroups(g.transactions, key2, 10, undefined, true),
       };
     }),
   };
@@ -59,7 +59,7 @@ export default function Visualization({ transactions }) {
     ).map((g) => {
       return {
         ...g,
-        children: topGroups(g.transactions, key2, 10),
+        children: topGroups(g.transactions, key2, 10, undefined, true),
       };
     }),
   };
@@ -168,7 +168,7 @@ export default function Visualization({ transactions }) {
             {income.groups.map((g) => (
               <Tooltip
                 key={g.key}
-                title={smallSummary("Income", g.sum, g.children)}
+                title={smallSummary(`Income (${g.key})`, g.sum, g.children)}
                 placement="right"
               >
                 <motion.rect
@@ -188,7 +188,7 @@ export default function Visualization({ transactions }) {
             {expenses.groups.map((g) => (
               <Tooltip
                 key={g.key}
-                title={smallSummary("Expenses", g.sum, g.children)}
+                title={smallSummary(`Expenses (${g.key})`, g.sum, g.children)}
                 placement="right"
               >
                 <motion.rect
@@ -208,7 +208,7 @@ export default function Visualization({ transactions }) {
             {net.groups.map((g) => (
               <Tooltip
                 key={g.key}
-                title={smallSummary("Net", g.sum, g.children)}
+                title={smallSummary(`Net (${g.key})`, g.sum, g.children)}
                 placement="right"
               >
                 <motion.rect
