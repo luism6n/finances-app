@@ -1,34 +1,15 @@
 import moment from "moment";
 import { useState } from "react";
+import * as d3 from "d3";
+import { nanoid } from "nanoid";
+import { faker } from "@faker-js/faker";
 
 function useTransactions(currentFilter, myFilters, searchQuery) {
   const [openFiles, setOpenFiles] = useState([]);
   const [transactions, _setTransactions] = useState(() =>
     (
-      JSON.parse(window.localStorage.getItem("transactions")) || [
-        {
-          id: "626e4741-144e-4ea4-be0d-1a4ec851c073",
-          memo: "a",
-          categ: "c",
-          amount: 20,
-          date: "2022-01-01T03:00:00.000Z",
-          ignored: false,
-          sequence: 1,
-          fileId: "fileId",
-          fileName: "f.name",
-        },
-        {
-          id: "6275cf18-e75c-459b-a948-6708195b6610",
-          memo: "b",
-          categ: "d",
-          amount: -10,
-          date: "2022-02-02T03:00:00.000Z",
-          ignored: false,
-          sequence: 1,
-          fileId: "fileId",
-          fileName: "f.name",
-        },
-      ]
+      JSON.parse(window.localStorage.getItem("transactions")) ||
+      generateABunchOfTransactions(2000)
     ).map((t) => {
       return { ...t, date: moment(t.date, moment.defaultFormatUtc) };
     })
@@ -79,6 +60,49 @@ function useTransactions(currentFilter, myFilters, searchQuery) {
     setTransactions,
     setOpenFiles,
   };
+}
+
+function generateABunchOfTransactions(num) {
+  function choice(array) {
+    return array[d3.randomInt(array.length)()];
+  }
+
+  let date = moment();
+
+  let categs = [];
+  for (let i = 0; i < 10; i++) {
+    let memos = [];
+    for (let i = 0; i < 10; i++) {
+      memos.push(faker.company.companyName());
+    }
+    categs.push({ name: faker.commerce.department(), memos: memos });
+  }
+
+  const transactions = [];
+  const randNormal = d3.randomNormal(5, 2);
+
+  let numTransactions = 0;
+  while (numTransactions < num) {
+    let forToday = d3.max([0, Math.floor(randNormal())]);
+    for (let i = 0; i < forToday; i++) {
+      let categ = choice(categs);
+      transactions.push({
+        id: nanoid(),
+        memo: choice(categ.memos),
+        categ: categ.name,
+        amount: -faker.finance.amount(),
+        date: date.format(moment.defaultFormatUtc),
+        ignored: false,
+        sequence: numTransactions,
+        fileId: "<fileId>",
+        fileName: "myBankExport.ofx",
+      });
+      numTransactions++;
+    }
+    date.add(1, "day");
+  }
+
+  return transactions;
 }
 
 export default useTransactions;

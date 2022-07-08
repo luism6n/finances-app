@@ -25,6 +25,40 @@ export default function Summary({ transactions }) {
     return `${stats.count}x ${memo} (average ${formatMoney(stats.avg)})`;
   }
 
+  function busiestDay() {
+    let [day, stats] = Array.from(
+      d3.rollup(
+        transactions.filter((t) => t.amount < 0),
+        (g) => ({ count: g.length, sum: d3.sum(g.map((t) => t.amount)) }),
+        (t) => t.date.format("DD/MM/YYYY")
+      )
+    ).sort(([k1, v1], [k2, v2]) => {
+      return v2.count - v1.count;
+    })[0];
+
+    return `${day}: spent ${stats.count}x totalling ${formatMoney(stats.sum)}`;
+  }
+
+  function busiestDay() {
+    let [day, stats] = Array.from(
+      d3.rollup(
+        transactions.filter((t) => t.amount < 0),
+        (g) => ({
+          count: g.length,
+          sum: d3.sum(g.map((t) => t.amount)),
+          memos: g.map((t) => t.memo).join(", "),
+        }),
+        (t) => t.date.format("DD/MM/YYYY")
+      )
+    ).sort(([k1, v1], [k2, v2]) => {
+      return v2.count - v1.count;
+    })[0];
+
+    return `${day}: spent ${stats.count}x totalling ${formatMoney(
+      stats.sum
+    )} on ${stats.memos}`;
+  }
+
   function averagePerKey() {
     return d3.rollup(
       transactions,
@@ -54,6 +88,7 @@ export default function Summary({ transactions }) {
     },
     { name: "Largest", value: largestTransaction() },
     { name: "Most frequent", value: mostFrequentTransaction() },
+    { name: "Busiest day", value: busiestDay() },
     ...Array.from(averagePerKey().entries())
       .sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]))
       .map(([key, value]) => {

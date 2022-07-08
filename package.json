@@ -5,6 +5,7 @@
   "dependencies": {
     "@emotion/react": "^11.9.3",
     "@emotion/styled": "^11.9.3",
+    "@faker-js/faker": "^7.3.0",
     "@mui/icons-material": "^5.8.4",
     "@mui/lab": "^5.0.0-alpha.86",
     "@mui/material": "^5.8.4",
@@ -15,6 +16,7 @@
     "csv-parser": "^3.0.0",
     "d3": "^7.4.4",
     "date-fns": "^2.28.0",
+    "faker": "^6.6.6",
     "framer-motion": "^6.3.16",
     "moment": "^2.29.3",
     "nanoid": "^4.0.0",

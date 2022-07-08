@@ -33,7 +33,12 @@ export default function Evolution({ transactions }) {
     b: 50,
   };
 
-  const mandatoryKeys = transactions
+  const transactionsWithAmountReversed = transactions.map((t) => ({
+    ...t,
+    amount: -t.amount,
+  }));
+
+  const mandatoryKeys = transactionsWithAmountReversed
     .map((t) => getKey(t, key1))
     .sort((k1, k2) => {
       if (key1 === "Month") {
@@ -47,7 +52,13 @@ export default function Evolution({ transactions }) {
       return k1 - k2;
     });
 
-  const groups = topGroups(transactions, key2, 8, undefined, true).map((g) => {
+  const groups = topGroups(
+    transactionsWithAmountReversed,
+    key2,
+    8,
+    undefined,
+    true
+  ).map((g) => {
     return {
       ...g,
       children: topGroups(g.transactions, key1, -1, mandatoryKeys),
