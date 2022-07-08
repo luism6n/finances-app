@@ -16,7 +16,7 @@ import { motion } from "framer-motion";
 import { formatMoney } from "./utils";
 import useGroups from "./useGroups";
 
-export default function Visualization({ transactions }) {
+export default function Overview({ transactions }) {
   const { width, height, ref } = useSize();
   const { topGroups, key1, key2, setKey1, setKey2, allKeys } = useGroups();
 
