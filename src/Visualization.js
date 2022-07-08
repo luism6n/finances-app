@@ -64,7 +64,6 @@ export default function Visualization({ transactions }) {
     }),
   };
 
-  console.log(net.groups);
   const { xAxis, xScale, yAxis, yScale } = getTransactionsVsDateAxes(
     [
       d3.min([...expenses.groups.map((g) => g.sum), 0]),
@@ -107,29 +106,27 @@ export default function Visualization({ transactions }) {
 
   function smallSummary(title, total, groups) {
     return (
-      <Grid width={200} container>
+      <Grid container>
         <Grid item xs={7}>
           <Typography>{title}</Typography>
         </Grid>
         <Grid item xs={5}>
-          <Typography>{formatMoney(total)}</Typography>
+          <Typography textAlign="right">{formatMoney(total)}</Typography>
         </Grid>
-
+        <Grid item sx={{ marginTop: 1 }} xs={12} /> {/* spacing */}
         {groups.map((g) => (
           <Fragment key={g.key}>
             <Grid item xs={7}>
               <Typography>{g.key}</Typography>
             </Grid>
             <Grid item xs={5}>
-              <Typography>{formatMoney(g.sum)}</Typography>
+              <Typography textAlign="right">{formatMoney(g.sum)}</Typography>
             </Grid>
           </Fragment>
         ))}
       </Grid>
     );
   }
-
-  console.log({ income });
 
   return (
     <Stack sx={{ flex: 1, height: "100%" }}>

@@ -18,6 +18,7 @@
     "framer-motion": "^6.3.16",
     "moment": "^2.29.3",
     "nanoid": "^4.0.0",
+    "node-ofx-parser": "^0.5.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",

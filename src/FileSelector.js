@@ -5,19 +5,15 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  FormControl,
   FormControlLabel,
   FormGroup,
-  FormLabel,
   Input,
-  Radio,
-  RadioGroup,
   Stack,
 } from "@mui/material";
-import moment from "moment";
 import { nanoid } from "nanoid";
 import React, { useState } from "react";
-import { parseCSV } from "./utils";
+import { parse } from "node-ofx-parser";
+import moment from "moment";
 
 export default function FileSelector({
   open,
@@ -27,7 +23,6 @@ export default function FileSelector({
 }) {
   const [erasePrevious, setErasePrevious] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState([]);
-  const [selectedFilesFormat, setSelectedFilesFormat] = useState("nubank cc");
 
   async function loadFiles() {
     if (selectedFiles.length === 0) {
@@ -41,42 +36,37 @@ export default function FileSelector({
       const fileId = nanoid(10);
 
       const fileContents = await f.text();
-      const fileTransactions = parseCSV(fileContents).map((t, i) => {
-        switch (selectedFilesFormat) {
-          case "nubank credit card":
-            return {
-              amount: -Number.parseFloat(t[3]),
-              date: moment(t[0], "YYYY-MM-DD"),
-              memo: t[2],
-              categ: t[1] || "?",
-              sequence: i,
-              fileId: fileId,
-              fileName: f.name,
-              id: nanoid(),
-              ignored: false,
-            };
-          case "nubank account":
-            return {
-              amount: Number.parseFloat(t[1]),
-              date: moment(t[0], "DD/MM/YYYY"),
-              memo: t[3],
-              categ: "?",
-              sequence: i,
-              fileId: fileId,
-              fileName: f.name,
-              id: nanoid(),
-              ignored: false,
-            };
-          default:
-            console.error(`file format "${selectedFilesFormat}" unknown`);
-            return null;
+
+      const ofx = parse(fileContents).OFX;
+      let rawTransactionList;
+
+      try {
+        rawTransactionList =
+          ofx.BANKMSGSRSV1.STMTTRNRS.STMTRS.BANKTRANLIST.STMTTRN;
+      } catch (e) {
+        if (e instanceof TypeError) {
+          rawTransactionList =
+            ofx.CREDITCARDMSGSRSV1.CCSTMTTRNRS.CCSTMTRS.BANKTRANLIST.STMTTRN;
         }
+      }
+
+      const fileTransactions = rawTransactionList.map((t, i) => {
+        return {
+          amount: Number.parseFloat(t.TRNAMT),
+          date: moment(t.DTPOSTED.slice(0, 8), "YYYYMMDD"),
+          memo: t.MEMO,
+          categ: "?",
+          sequence: i,
+          fileId: fileId,
+          fileName: f.name,
+          id: nanoid(),
+          ignored: false,
+        };
       });
 
       const newFile = {
         id: fileId,
         name: f.name,
-        format: selectedFilesFormat,
         numTransactions: fileTransactions.length,
       };
 
@@ -107,7 +97,7 @@ export default function FileSelector({
       open={open}
       onClose={() => setOpen(false)}
     >
-      <DialogTitle>Select files</DialogTitle>
+      <DialogTitle>Upload OFX files</DialogTitle>
       <DialogContent>
         <Stack>
           <Input
@@ -117,26 +107,6 @@ export default function FileSelector({
             inputProps={{ multiple: true }}
             type="file"
           ></Input>
-          <FormControl component="fieldset">
-            <FormLabel component="legend">Format</FormLabel>
-            <RadioGroup
-              aria-label="gender"
-              name="gender1"
-              value={selectedFilesFormat}
-              onChange={(e) => setSelectedFilesFormat(e.target.value)}
-            >
-              <FormControlLabel
-                value="nubank credit card"
-                control={<Radio />}
-                label="Nubank Credit Card"
-              />
-              <FormControlLabel
-                value="nubank account"
-                control={<Radio />}
-                label="Nubank Account"
-              />
-            </RadioGroup>
-          </FormControl>
           <FormGroup>
             <FormControlLabel
               control={

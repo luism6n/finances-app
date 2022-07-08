@@ -42,8 +42,6 @@ export default function Evolution({ transactions }) {
     };
   });
 
-  console.log({ groups });
-
   let maxY = d3.max(groups, (g) => d3.max(g.children, (g) => g.sum));
   let minY = d3.min(groups, (g) => d3.min(g.children, (g) => g.sum));
   const { xAxis, xScale, yAxis, yScale } = getTransactionsVsDateAxes(
@@ -101,7 +99,6 @@ export default function Evolution({ transactions }) {
     for (let i = 0; i < groups.length; i++) {
       const g = groups[i];
       const points = g.children.map((g) => [g.key, g.sum]);
-      console.log({ points });
 
       const lineGenerator = d3
         .line()
