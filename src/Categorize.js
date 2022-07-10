@@ -82,7 +82,7 @@ export default function Categorize({ transactions, setCategory }) {
           <TableHead>
             <TableRow>
               <TableCell align="right">#</TableCell>
-              <TableCell align="right">Count</TableCell>
+              <TableCell align="center">Count</TableCell>
               <TableCell align="right">Description</TableCell>
               <TableCell align="right">Sum</TableCell>
               <TableCell align="left"></TableCell>
@@ -100,7 +100,7 @@ export default function Categorize({ transactions, setCategory }) {
                   <TableCell align="right">
                     {(page - 1) * perPage + i + 1}
                   </TableCell>
-                  <TableCell>{v.count}x</TableCell>
+                  <TableCell align="center">{v.count}x</TableCell>
                   <TableCell align="right">{k}</TableCell>
                   <TableCell
                     sx={{ color: v.sum > 0 ? "darkgreen" : "black" }}
@@ -127,7 +127,7 @@ export default function Categorize({ transactions, setCategory }) {
       </TableContainer>
       <Pagination
         sx={{ p: 2 }}
-        count={Math.ceil(transactions.length / perPage)}
+        count={Math.ceil(memosInThePage.length / perPage)}
         page={page}
         onChange={onPageChange}
       />

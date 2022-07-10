@@ -69,7 +69,7 @@ function generateABunchOfTransactions(num) {
 
   let date = moment();
 
-  let categs = [];
+  let categs = [{ name: "?", memos: ["Monster Inc.", "ACME"] }];
   for (let i = 0; i < 10; i++) {
     let memos = [];
     for (let i = 0; i < 10; i++) {
@@ -90,7 +90,7 @@ function generateABunchOfTransactions(num) {
         id: nanoid(),
         memo: choice(categ.memos),
         categ: categ.name,
-        amount: -faker.finance.amount(),
+        amount: faker.finance.amount(-1000, 1500),
         date: date.format(moment.defaultFormatUtc),
         ignored: false,
         sequence: numTransactions,

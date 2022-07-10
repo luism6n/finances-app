@@ -1,4 +1,9 @@
-import { Grid, Stack, Typography } from "@mui/material";
+import {
+  Experimental_CssVarsProvider,
+  Grid,
+  Stack,
+  Typography,
+} from "@mui/material";
 import React, { Fragment } from "react";
 import * as d3 from "d3";
 import { formatMoney } from "./utils";
@@ -26,23 +31,15 @@ export default function Summary({ transactions }) {
   }
 
   function busiestDay() {
+    const expenses = transactions.filter((t) => t.amount < 0);
+
+    if (expenses.length === 0) {
+      return "No expenses selected";
+    }
+
     let [day, stats] = Array.from(
       d3.rollup(
-        transactions.filter((t) => t.amount < 0),
-        (g) => ({ count: g.length, sum: d3.sum(g.map((t) => t.amount)) }),
-        (t) => t.date.format("DD/MM/YYYY")
-      )
-    ).sort(([k1, v1], [k2, v2]) => {
-      return v2.count - v1.count;
-    })[0];
-
-    return `${day}: spent ${stats.count}x totalling ${formatMoney(stats.sum)}`;
-  }
-
-  function busiestDay() {
-    let [day, stats] = Array.from(
-      d3.rollup(
-        transactions.filter((t) => t.amount < 0),
+        expenses,
         (g) => ({
           count: g.length,
           sum: d3.sum(g.map((t) => t.amount)),

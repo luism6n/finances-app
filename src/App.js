@@ -26,6 +26,7 @@ function App() {
     }
 
     for (let term of searchTerms) {
+      term = term.toLowerCase();
       if (term.startsWith("!")) {
         if (!value.includes(term.substring(1))) return true;
       } else if (value.includes(term)) {
@@ -50,6 +51,7 @@ function App() {
       } catch {
         continue;
       }
+
       switch (op) {
         case ">":
           if (amount >= value) return true;

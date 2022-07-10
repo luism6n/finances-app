@@ -22,36 +22,36 @@ export default function Tabs({
             onChange={(e, tab) => setTab(tab)}
             aria-label="lab API tabs example"
           >
-            <Tab label="Transactions" value="1" />
-            <Tab label="Filtered" value="2" />
-            <Tab label="Overview" value="3" />
-            <Tab label="Evolution" value="4" />
+            <Tab label="Overview" value="1" />
+            <Tab label="Evolution" value="2" />
+            <Tab label="Filtered" value="3" />
+            <Tab label="Transactions" value="4" />
             <Tab label="Summary" value="5" />
             <Tab label="Categorize" value="6" />
           </TabList>
         </Box>
-        <TabPanel sx={{ overflow: "hidden", height: "100%", p: 0 }} value="1">
-          <Transactions
-            setCategory={setCategory}
-            transactions={currentFilterResults}
-          />
-        </TabPanel>
-        <TabPanel sx={{ overflow: "hidden", height: "100%", p: 0 }} value="2">
-          <Transactions setCategory={setCategory} transactions={filtered} />
-        </TabPanel>
-        <TabPanel sx={{ overflow: "hidden", height: "100%" }} value="3">
+        <TabPanel sx={{ overflow: "hidden", height: "100%" }} value="1">
           {filtered.length > 0 ? (
             <Overview transactions={filtered} />
           ) : (
             "Select at least one transaction"
           )}
         </TabPanel>
-        <TabPanel sx={{ overflow: "hidden", height: "100%" }} value="4">
+        <TabPanel sx={{ overflow: "hidden", height: "100%" }} value="2">
           {filtered.length > 0 ? (
             <Evolution transactions={filtered} />
           ) : (
             "Select at least one transaction"
           )}
+        </TabPanel>
+        <TabPanel sx={{ overflow: "hidden", height: "100%", p: 0 }} value="3">
+          <Transactions setCategory={setCategory} transactions={filtered} />
+        </TabPanel>
+        <TabPanel sx={{ overflow: "hidden", height: "100%", p: 0 }} value="4">
+          <Transactions
+            setCategory={setCategory}
+            transactions={currentFilterResults}
+          />
         </TabPanel>
         <TabPanel sx={{ overflow: "hidden", height: "100%" }} value="5">
           {filtered.length > 0 ? (
