@@ -1,6 +1,6 @@
 # Finances app
 
-An unnamed app to categorize and visualize financial transactions data in OFX.
+An unnamed app to categorize and visualize financial transactions data in OFX. Made with React + d3.
 
 ![](out.gif)
 
