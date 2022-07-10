@@ -1,5 +1,7 @@
 # Finances app
 
+An unnamed app to categorize and visualize financial transactions data in OFX.
+
 ![](out.gif)
 
 ## Install
@@ -28,3 +30,7 @@ Fake data and example filters will be added the first time you open the app so y
 - The Transactions tab shows all transactions without any filters applied, so you can visualize your current search only.
 - Summary shows a bunch of stats about the transactions.
 - Categorize helps you set the category of your transactions efficiently. It shows your transactions grouped by description and sorted by amount, so you can tag whatever makes more difference in the visualization first.
+
+## Thanks
+
+Thanks to friends that helped me iterate the design. :)
