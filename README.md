@@ -33,4 +33,4 @@ Fake data and example filters will be added the first time you open the app so y
 
 ## Thanks
 
-Thanks to friends that helped me iterate the design. :)
+Thanks to my friends and girlfriend <3 that helped me iterate the design. :)
