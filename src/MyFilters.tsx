@@ -1,7 +1,14 @@
 import { Box, Chip, Stack, Tooltip, Typography } from "@mui/material";
 import React from "react";
+import { Filter } from "./types";
 
-function MyFilter({ f, toggleFilter, deleteFilter }) {
+interface MyFilterProps {
+  f: Filter,
+  toggleFilter: (filter: Filter) => void,
+  deleteFilter: (filter: Filter) => void,
+}
+
+function MyFilter({ f, toggleFilter, deleteFilter }: MyFilterProps) {
   return (
     <Tooltip
       placement="right"
@@ -15,7 +22,7 @@ function MyFilter({ f, toggleFilter, deleteFilter }) {
         size="small"
         onClick={() => toggleFilter(f)}
         onDelete={() => deleteFilter(f)}
-        variant={f.enabled ? "" : "outlined"}
+        variant={f.enabled ? undefined : "outlined"}
         color={f.enabled ? "primary" : "default"}
         sx={{ m: 1, p: 1 }}
         label={f.name}
@@ -24,12 +31,20 @@ function MyFilter({ f, toggleFilter, deleteFilter }) {
   );
 }
 
+
+interface MyFiltersProps {
+  sx?: React.CSSProperties,
+  myFilters: Filter[],
+  toggleFilter: (filter: Filter) => void,
+  deleteFilter: (filter: Filter) => void,
+}
+
 export default function MyFilters({
   sx,
   myFilters,
   toggleFilter,
   deleteFilter,
-}) {
+}: MyFiltersProps) {
   return (
     <Stack sx={{ ...sx }}>
       <Typography variant="h5">Saved filters</Typography>

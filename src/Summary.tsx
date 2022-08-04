@@ -1,17 +1,21 @@
 import {
-  Experimental_CssVarsProvider,
   Grid,
-  Stack,
   Typography,
 } from "@mui/material";
 import React, { Fragment } from "react";
 import * as d3 from "d3";
 import { formatMoney } from "./utils";
+import { Transaction } from "./types";
+import moment from "moment";
 
-export default function Summary({ transactions }) {
+interface Props {
+  transactions: Transaction[];
+}
+
+export default function Summary({ transactions }: Props) {
   function largestTransaction() {
     let l = transactions[d3.maxIndex(transactions, (t) => Math.abs(t.amount))];
-    return `${formatMoney(l.amount)} ${l.memo} (${l.date.format(
+    return `${formatMoney(l.amount)} ${l.description} (${l.date.format(
       "DD/MM/YYYY"
     )})`;
   }
@@ -21,7 +25,7 @@ export default function Summary({ transactions }) {
       d3.rollup(
         transactions,
         (g) => ({ count: g.length, avg: d3.mean(g.map((t) => t.amount)) }),
-        (t) => t.memo
+        (t) => t.description
       )
     ).sort(([k1, v1], [k2, v2]) => {
       return v2.count - v1.count;
@@ -43,7 +47,7 @@ export default function Summary({ transactions }) {
         (g) => ({
           count: g.length,
           sum: d3.sum(g.map((t) => t.amount)),
-          memos: g.map((t) => t.memo).join(", "),
+          memos: g.map((t) => t.description).join(", "),
         }),
         (t) => t.date.format("DD/MM/YYYY")
       )
@@ -81,7 +85,7 @@ export default function Summary({ transactions }) {
     { name: "Money out", value: formatMoney(moneyOut) },
     {
       name: "Time span",
-      value: `${dateMin.format("MM/YYYY")} - ${dateMax.format("MM/YYYY")}`,
+      value: `${dateMin!.format("MM/YYYY")} - ${dateMax!.format("MM/YYYY")}`,
     },
     { name: "Largest", value: largestTransaction() },
     { name: "Most frequent", value: mostFrequentTransaction() },

@@ -13,9 +13,15 @@ import {
 } from "@mui/material";
 import { formatMoney } from "./utils";
 import CategorizeDialog from "./CategorizeDialog";
+import { Transaction } from "./types";
 
-export default function Categorize({ transactions, setCategory }) {
-  const ref = useRef();
+interface Props {
+  transactions: Transaction[],
+  setCategory: (t: Transaction | Transaction[], categ: string) => void,
+}
+
+export default function Categorize({ transactions, setCategory }: Props) {
+  const ref = useRef<HTMLDivElement | null>(null);
   const [openCategorizeDialog, setOpenCategorizeDialog] = useState(false);
   const [clickedMemo, setClickedMemo] = useState("");
 
@@ -25,7 +31,7 @@ export default function Categorize({ transactions, setCategory }) {
         d3.rollup(
           transactions.filter((t) => t.categ === "" || t.categ === "?"),
           (g) => ({ sum: d3.sum(g, (t) => t.amount), count: g.length }),
-          (t) => t.memo
+          (t) => t.description
         )
       ).sort(([k1, v1], [k2, v2]) => {
         return Math.abs(v2.sum) - Math.abs(v1.sum);
@@ -41,15 +47,17 @@ export default function Categorize({ transactions, setCategory }) {
     page * perPage
   );
 
-  function onPageChange(e, v) {
-    setPage(v);
-    ref.current.scrollTo(0, 0);
+  function onPageChange(e: React.ChangeEvent<unknown>, page: number): void {
+    setPage(page);
+    if (ref.current) {
+      ref.current.scrollTo(0, 0);
+    }
   }
 
   console.log({ largestMemos });
 
   if (largestMemos.length === 0) {
-    return "All transactions have a category already";
+    return <div>"All transactions have a category already"</div>;
   }
 
   return (
@@ -65,9 +73,9 @@ export default function Categorize({ transactions, setCategory }) {
       <CategorizeDialog
         open={openCategorizeDialog}
         setOpen={setOpenCategorizeDialog}
-        setCategory={(c) =>
+        setCategory={(c: string) =>
           setCategory(
-            transactions.filter((t) => t.memo === clickedMemo),
+            transactions.filter((t) => t.description === clickedMemo),
             c
           )
         }

@@ -15,8 +15,13 @@ import getTransactionsVsDateAxes from "./axes";
 import { motion } from "framer-motion";
 import { formatMoney } from "./utils";
 import useGroups from "./useGroups";
+import { Transaction } from "./types";
 
-export default function Overview({ transactions }) {
+interface Props {
+  transactions: Transaction[],
+}
+
+export default function Overview({ transactions }: Props) {
   const { width, height, ref } = useSize();
   const { topGroups, key1, key2, setKey1, setKey2, allKeys } = useGroups();
 
@@ -66,8 +71,8 @@ export default function Overview({ transactions }) {
 
   const { xAxis, xScale, yAxis, yScale } = getTransactionsVsDateAxes(
     [
-      d3.min([...expenses.groups.map((g) => g.sum), 0]),
-      d3.max([...income.groups.map((g) => g.sum), 0]),
+      d3.min([...expenses.groups.map((g) => g.sum), 0])!,
+      d3.max([...income.groups.map((g) => g.sum), 0])!,
     ],
     net.groups.map((g) => g.key),
     width,
@@ -86,14 +91,14 @@ export default function Overview({ transactions }) {
       .attr("transform", `translate(${margin.r})`)
       .transition()
       .duration(500)
-      .call(yAxis);
+      .call(yAxis.bind(this));
 
     d3.select("#container")
       .select("g.xAxis")
       .attr("transform", `translate(0, ${height - margin.b})`)
       .transition()
       .duration(500)
-      .call(xAxis);
+      .call(xAxis.bind(this));
 
     d3.select("path.lineAtZero")
       .transition()
@@ -104,7 +109,7 @@ export default function Overview({ transactions }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key1, key2, transactions, width, height]);
 
-  function smallSummary(title, total, groups) {
+  function smallSummary(title: string, total: number, groups: {key: string, sum: number}[]) {
     return (
       <Grid container>
         <Grid item xs={7}>
@@ -193,7 +198,7 @@ export default function Overview({ transactions }) {
               >
                 <motion.rect
                   animate={{
-                    x: xScale(g.key) + xScale.bandwidth() / 3,
+                    x: xScale(g.key)! + xScale.bandwidth() / 3,
                     y: yScale(0),
                     height: Math.abs(yScale(0) - yScale(g.sum)),
                     width: xScale.bandwidth() / 3,
@@ -213,7 +218,7 @@ export default function Overview({ transactions }) {
               >
                 <motion.rect
                   animate={{
-                    x: xScale(g.key) + (2 * xScale.bandwidth()) / 3,
+                    x: xScale(g.key)! + (2 * xScale.bandwidth()) / 3,
                     y: Math.min(yScale(0), yScale(g.sum)),
                     height: Math.abs(yScale(0) - yScale(g.sum)),
                     width: xScale.bandwidth() / 3,

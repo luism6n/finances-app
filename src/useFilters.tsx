@@ -1,21 +1,22 @@
 import moment from "moment";
 import { useState } from "react";
+import { Filter } from "./types";
 
 export default function useFilters() {
-  const [myFilters, _setMyFilters] = useState(
-    JSON.parse(window.localStorage.getItem("myFilters")) || exampleFilters()
+  const [myFilters, _setMyFilters] = useState<Filter[]>(
+    JSON.parse(window.localStorage.getItem("myFilters") || '""') || exampleFilters()
   );
 
-  function setMyFilters(fs) {
+  function setMyFilters(fs: Filter[]) {
     window.localStorage.setItem("myFilters", JSON.stringify(fs));
     _setMyFilters(fs);
   }
 
-  function saveFilter(f) {
+  function saveFilter(f: Filter) {
     setMyFilters([...myFilters, f]);
   }
 
-  function toggleFilter(f) {
+  function toggleFilter(f: Filter) {
     setMyFilters(
       myFilters.map((ff) =>
         ff.id !== f.id ? ff : { ...f, enabled: !f.enabled }
@@ -23,7 +24,7 @@ export default function useFilters() {
     );
   }
 
-  function deleteFilter(f) {
+  function deleteFilter(f: Filter) {
     setMyFilters(myFilters.filter((ff) => ff.id !== f.id));
   }
 
@@ -35,7 +36,7 @@ export default function useFilters() {
   };
 }
 
-function exampleFilters() {
+function exampleFilters(): Filter[] {
   return [
     {
       query: {

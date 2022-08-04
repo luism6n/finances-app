@@ -3,19 +3,22 @@ import { useState } from "react";
 import * as d3 from "d3";
 import { nanoid } from "nanoid";
 import { faker } from "@faker-js/faker";
+import { Transaction } from "./types";
 
-function useTransactions(currentFilter, myFilters, searchQuery) {
-  const [openFiles, setOpenFiles] = useState([]);
-  const [transactions, _setTransactions] = useState(() =>
-    (
-      JSON.parse(window.localStorage.getItem("transactions")) ||
-      generateABunchOfTransactions(2000)
-    ).map((t) => {
-      return { ...t, date: moment(t.date, moment.defaultFormatUtc) };
+function useTransactions() {
+  const [transactions, _setTransactions] = useState<Transaction[]>(() => {
+    let storedTransactions = window.localStorage.getItem("transactions");
+    if (!storedTransactions) {
+      return generateABunchOfTransactions(1000);
+    }
+
+    return JSON.parse(storedTransactions).map((t: any) => ({
+      ...t,
+      date: moment(t.date).format(moment.defaultFormatUtc),
+      }));
     })
-  );
 
-  function setTransactions(t) {
+  function setTransactions(t: Transaction[] | ((t: Transaction[]) => Transaction[])) {
     if (typeof t === "function") {
       window.localStorage.setItem(
         "transactions",
@@ -27,7 +30,7 @@ function useTransactions(currentFilter, myFilters, searchQuery) {
     _setTransactions(t);
   }
 
-  function replaceInUnfiltered(newTransactions) {
+  function replaceInUnfiltered(newTransactions: Transaction[]) {
     const newIgnoredIds = new Set(newTransactions.map((t) => t.id));
 
     setTransactions((u) => [
@@ -36,7 +39,7 @@ function useTransactions(currentFilter, myFilters, searchQuery) {
     ]);
   }
 
-  function makeArray(x) {
+  function makeArray<T>(x: T | T[]): T[] {
     if (!Array.isArray(x)) {
       return [x];
     }
@@ -44,7 +47,7 @@ function useTransactions(currentFilter, myFilters, searchQuery) {
     return x;
   }
 
-  function setCategory(t, categ) {
+  function setCategory(t: Transaction | Transaction[], categ: string) {
     t = makeArray(t).map((t) => {
       return {
         ...t,
@@ -58,40 +61,39 @@ function useTransactions(currentFilter, myFilters, searchQuery) {
     transactions,
     setCategory,
     setTransactions,
-    setOpenFiles,
   };
 }
 
-function generateABunchOfTransactions(num) {
-  function choice(array) {
+function generateABunchOfTransactions(num: number): Transaction[] {
+  function choice<T>(array: T[]): T {
     return array[d3.randomInt(array.length)()];
   }
 
   let date = moment();
 
-  let categs = [{ name: "?", memos: ["Monster Inc.", "ACME"] }];
+  let categs: {name:string, memos: string[]}[] = [{ name: "?", memos: ["Monster Inc.", "ACME"] }];
   for (let i = 0; i < 10; i++) {
-    let memos = [];
+    let memos: string[] = [];
     for (let i = 0; i < 10; i++) {
       memos.push(faker.company.companyName());
     }
     categs.push({ name: faker.commerce.department(), memos: memos });
   }
 
-  const transactions = [];
+  const transactions: Transaction[] = [];
   const randNormal = d3.randomNormal(5, 2);
 
   let numTransactions = 0;
   while (numTransactions < num) {
-    let forToday = d3.max([0, Math.floor(randNormal())]);
+    let forToday = d3.max([0, Math.floor(randNormal())])!;
     for (let i = 0; i < forToday; i++) {
       let categ = choice(categs);
       transactions.push({
         id: nanoid(),
-        memo: choice(categ.memos),
+        description: choice(categ.memos),
         categ: categ.name,
-        amount: faker.finance.amount(-1000, 1500),
-        date: date.format(moment.defaultFormatUtc),
+        amount: Number.parseFloat(faker.finance.amount(-1000, 1500)),
+        date: date.clone(),
         ignored: false,
         sequence: numTransactions,
         fileId: "<fileId>",

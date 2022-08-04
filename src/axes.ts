@@ -1,6 +1,12 @@
 import * as d3 from "d3";
 
-function getTransactionsVsDateAxes(yExtent, xDomain, width, height, margin) {
+function getTransactionsVsDateAxes(
+  yExtent: number[],
+  xDomain: string[],
+  width: number,
+  height: number,
+  margin: { r: number, t: number, l: number, b: number }
+) {
   const yDomain = yExtent;
   const yScale = d3
     .scaleLinear()

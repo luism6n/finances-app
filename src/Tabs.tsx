@@ -6,13 +6,21 @@ import Summary from "./Summary";
 import Transactions from "./Transactions";
 import Overview from "./Overview";
 import Categorize from "./Categorize";
+import { Transaction } from "./types";
+
+interface Props {
+  sx?: React.CSSProperties;
+  filtered: Transaction[];
+  setCategory: (t: Transaction | Transaction[], categ: string) => void;
+  currentFilterResults: Transaction[];
+}
 
 export default function Tabs({
   sx,
   filtered,
   setCategory,
   currentFilterResults,
-}) {
+}: Props) {
   const [tab, setTab] = useState("1");
   return (
     <TabContext value={tab}>

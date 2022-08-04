@@ -14,25 +14,30 @@ import { nanoid } from "nanoid";
 import React, { useState } from "react";
 import { parse } from "node-ofx-parser";
 import moment from "moment";
+import { Transaction} from "./types";
+
+interface Props {
+  open: boolean,
+  setOpen: (open: boolean) => void,
+  setTransactions: (t: Transaction[] | ((t: Transaction[]) => Transaction[])) => void,
+}
 
 export default function FileSelector({
   open,
   setOpen,
   setTransactions,
-  setOpenFiles,
-}) {
+}: Props) {
   const [erasePrevious, setErasePrevious] = useState(false);
-  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
 
   async function loadFiles() {
-    if (selectedFiles.length === 0) {
+    if (!selectedFiles || selectedFiles.length === 0) {
       console.info("no files added");
       return;
     }
 
-    let newFiles = [];
-    let newTransactions = [];
-    for (let f of selectedFiles) {
+    let newTransactions: Transaction[] = [];
+    for (let f of Array.from(selectedFiles)) {
       const fileId = nanoid(10);
 
       const fileContents = await f.text();
@@ -50,7 +55,7 @@ export default function FileSelector({
         }
       }
 
-      const fileTransactions = rawTransactionList.map((t, i) => {
+      const fileTransactions = rawTransactionList.map((t: any, i: number) => {
         return {
           amount: Number.parseFloat(t.TRNAMT),
           date: moment(t.DTPOSTED.slice(0, 8), "YYYYMMDD"),
@@ -64,25 +69,14 @@ export default function FileSelector({
         };
       });
 
-      const newFile = {
-        id: fileId,
-        name: f.name,
-        numTransactions: fileTransactions.length,
-      };
-
-      newFiles.push(newFile);
       newTransactions = newTransactions
         .concat(fileTransactions)
         .filter((t) => !Number.isNaN(t.amount));
     }
 
     if (erasePrevious) {
-      setOpenFiles(newFiles);
       setTransactions(newTransactions);
     } else {
-      setOpenFiles((o) => {
-        return [...o, newFiles];
-      });
       setTransactions((u) => {
         return [...u, ...newTransactions];
       });
@@ -102,7 +96,7 @@ export default function FileSelector({
         <Stack>
           <Input
             sx={{ marginBottom: 3 }}
-            onChange={(e) => setSelectedFiles(e.target.files)}
+            onChange={(e) => setSelectedFiles((e.target as HTMLInputElement).files)}
             id="fileInput"
             inputProps={{ multiple: true }}
             type="file"

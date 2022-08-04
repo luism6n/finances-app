@@ -1,13 +1,14 @@
 import moment from "moment";
 import * as d3 from "d3";
 import { useState } from "react";
+import {Transaction} from "./types";
 
-export default function useGroups(initialKey1, initialKey2) {
+export default function useGroups() {
   const allKeys = ["Month", "Weekday", "Category", "Description"];
   const [key1, setKey1] = useState("Month");
   const [key2, setKey2] = useState("Category");
 
-  function getKey(t, key) {
+  function getKey(t: Transaction, key: string) {
     switch (key) {
       case "Month":
         return t.date.format("MM/YY");
@@ -16,23 +17,24 @@ export default function useGroups(initialKey1, initialKey2) {
       case "Category":
         return t.categ;
       case "Description":
-        return t.memo;
+        return t.description;
       default:
         console.error(`unknown key ${key}`);
+        return "";
     }
   }
 
   function topGroups(
-    transactions,
-    key,
-    numGroups,
-    mandatoryTopKeys,
-    ellipsize
+    transactions: Transaction[],
+    key: string,
+    numGroups: number,
+    mandatoryTopKeys?: string[] | undefined,
+    ellipsize?: boolean | undefined
   ) {
-    function sortKeyValues([k1, v1], [k2, v2]) {
+    function sortKeyValues([k1, v1]: [string, string | number], [k2, v2]: [string, string | number]) {
       if (!ellipsize) {
         if (key === "Month") {
-          return moment(k1, "MM/YY") - moment(k2, "MM/YY");
+          return moment(k1, "MM/YY").valueOf() - +moment(k2, "MM/YY").valueOf();
         }
 
         if (key === "Weekday") {
@@ -42,10 +44,16 @@ export default function useGroups(initialKey1, initialKey2) {
         }
       }
 
-      return v2 - v1;
+      if (typeof v1 === "number" && typeof v2 === "number") {
+        return v1 - v2;
+      } else if (typeof v1 === "string" && typeof v2 === "string") {
+        return v1.localeCompare(v2);
+      }
+
+      return 0;
     }
 
-    let topKeys;
+    let topKeys: string[];
     if (mandatoryTopKeys) {
       topKeys = mandatoryTopKeys;
     } else {

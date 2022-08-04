@@ -1,17 +1,21 @@
 import { Button, Stack, TextField } from "@mui/material";
-import { DesktopDatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import moment from "moment";
 import { nanoid } from "nanoid";
 import React, { useState } from "react";
 import { parse } from "search-query-parser";
+import {Filter, emptyFilter} from "./types";
 
-export default function CurrentFilter({ filter, setFilter, saveFilter }) {
+interface Props {
+  filter: Filter,
+  setFilter: React.Dispatch<React.SetStateAction<Filter>>,
+  saveFilter: (f: Filter) => void,
+}
+
+export default function CurrentFilter({ filter, setFilter, saveFilter }: Props) {
   const [filterName, setFilterName] = useState("");
   const [query, setQuery] = useState("");
 
   const [currentFilterNoNameError, setCurrentFilterNoNameError] = useState("");
-  function validateAndSaveFilter(e) {
+  function validateAndSaveFilter(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
 
     if (!filterName) {
@@ -23,10 +27,10 @@ export default function CurrentFilter({ filter, setFilter, saveFilter }) {
     saveFilter({ ...filter, name: filterName, id: nanoid() });
     setFilterName("");
     setQuery("");
-    setFilter({ query: "", enabled: true });
+    setFilter(emptyFilter);
   }
 
-  function onQueryChange(newQuery) {
+  function onQueryChange(newQuery: string) {
     setQuery(newQuery);
     const options = {
       alwaysArray: true,

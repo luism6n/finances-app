@@ -4,13 +4,8 @@ import * as d3 from "d3";
 import getTransactionsVsDateAxes from "./axes";
 import {
   Box,
-  FormControl,
-  FormControlLabel,
-  FormLabel,
   InputLabel,
   MenuItem,
-  Radio,
-  RadioGroup,
   Select,
   Stack,
   Typography,
@@ -18,8 +13,13 @@ import {
 import useSize from "./useSize";
 import moment from "moment";
 import useGroups from "./useGroups";
+import { Transaction } from "./types";
 
-export default function Evolution({ transactions }) {
+interface Props {
+  transactions: Transaction[],
+}
+
+export default function Evolution({ transactions }: Props) {
   const { width, height, ref } = useSize();
   const { topGroups, key1, key2, setKey1, setKey2, allKeys, getKey } =
     useGroups();
@@ -33,23 +33,23 @@ export default function Evolution({ transactions }) {
     b: 50,
   };
 
-  const transactionsWithAmountReversed = transactions.map((t) => ({
+  const transactionsWithAmountReversed: Transaction[] = transactions.map((t) => ({
     ...t,
     amount: -t.amount,
   }));
 
   const mandatoryKeys = transactionsWithAmountReversed
     .map((t) => getKey(t, key1))
-    .sort((k1, k2) => {
+    .sort((k1: string, k2: string) => {
       if (key1 === "Month") {
-        return moment(k1, "MM/YY") - moment(k2, "MM/YY");
+        return moment(k1, "MM/YY").valueOf() - moment(k2, "MM/YY").valueOf();
       }
 
       if (key1 === "Weekday") {
         return moment(k1, "ddd").isoWeekday() - moment(k2, "ddd").isoWeekday();
       }
 
-      return k1 - k2;
+      return k1.localeCompare( k2);
     });
 
   const groups = topGroups(
@@ -65,8 +65,8 @@ export default function Evolution({ transactions }) {
     };
   });
 
-  let maxY = d3.max(groups, (g) => d3.max(g.children, (g) => g.sum));
-  let minY = d3.min(groups, (g) => d3.min(g.children, (g) => g.sum));
+  let maxY = d3.max(groups, (g) => d3.max(g.children, (g) => g.sum))!;
+  let minY = d3.min(groups, (g) => d3.min(g.children, (g) => g.sum))!;
   const { xAxis, xScale, yAxis, yScale } = getTransactionsVsDateAxes(
     [minY, maxY],
     mandatoryKeys,
@@ -81,7 +81,7 @@ export default function Evolution({ transactions }) {
   ]);
 
   let colorScale = d3
-    .scaleOrdinal()
+    .scaleOrdinal<string, string>()
     .domain(groups.map((g) => g.key))
     .range([
       "#a6cee3",
@@ -104,14 +104,14 @@ export default function Evolution({ transactions }) {
       .attr("transform", `translate(${margin.r})`)
       .transition()
       .duration(500)
-      .call(yAxis);
+      .call(yAxis.bind(this))
 
     d3.select("#container")
       .select("g.xAxis")
       .attr("transform", `translate(0, ${height - margin.b})`)
       .transition()
       .duration(500)
-      .call(xAxis);
+      .call(xAxis.bind(this))
 
     d3.select("path.lineAtZero")
       .transition()
@@ -121,11 +121,11 @@ export default function Evolution({ transactions }) {
 
     for (let i = 0; i < groups.length; i++) {
       const g = groups[i];
-      const points = g.children.map((g) => [g.key, g.sum]);
+      const points: [string, number][] = g.children.map((g) => [g.key, g.sum]);
 
       const lineGenerator = d3
-        .line()
-        .x((d) => xScale(d[0]) + xScale.step() / 4)
+        .line<[string, number]>()
+        .x((d) => xScale(d[0])! + xScale.step() / 4)
         .y((d) => yScale(d[1]));
 
       const pathData = lineGenerator(points);
@@ -138,9 +138,7 @@ export default function Evolution({ transactions }) {
         .duration(500)
         .attr("d", pathData)
         .style("fill", "none")
-        .style("stroke", (d) => {
-          return colorScale(g.key);
-        })
+        .style("stroke", colorScale(g.key))
         .style("stroke-width", 3);
 
       let circles = d3
@@ -153,7 +151,7 @@ export default function Evolution({ transactions }) {
         .transition()
         .duration(500)
         .attr("cx", (d) => {
-          return xScale(d[0]) + xScale.step() / 4;
+          return xScale(d[0])! + xScale.step() / 4;
         })
         .attr("cy", (d) => {
           return yScale(d[1]);

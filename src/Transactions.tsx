@@ -12,11 +12,20 @@ import {
 import React, { useMemo, useRef, useState } from "react";
 import CategorizeDialog from "./CategorizeDialog";
 import { formatMoney } from "./utils";
+import { Transaction } from "./types";
 
-export default function Transactions({ transactions, setCategory }) {
+interface Props {
+  transactions: Transaction[];
+  setCategory: (
+    transaction: Transaction | Transaction[],
+    category: string
+  ) => void;
+}
+
+export default function Transactions({ transactions, setCategory }: Props) {
   const [openCategorizeDialog, setOpenCategorizeDialog] = useState(false);
 
-  const ref = useRef();
+  const ref = useRef<HTMLDivElement | null>(null);
   const [page, setPage] = useState(1);
   const perPage = 50;
 
@@ -33,9 +42,12 @@ export default function Transactions({ transactions, setCategory }) {
     page * perPage
   );
 
-  function onPageChange(e, v) {
-    setPage(v);
-    ref.current.scrollTo(0, 0);
+  function onPageChange(e: React.ChangeEvent<unknown>, page: number): void {
+    setPage(page);
+
+    if (ref.current) {
+      ref.current.scrollTo(0, 0);
+    }
   }
 
   return (
@@ -92,7 +104,7 @@ export default function Transactions({ transactions, setCategory }) {
                     {t.categ}
                   </TableCell>
                   <TableCell sx={{ color: rowColor }} align="right">
-                    {t.memo}
+                    {t.description}
                   </TableCell>
                   <TableCell
                     sx={{ color: t.amount > 0 ? "darkgreen" : "black" }}

@@ -2,16 +2,19 @@ import {
   Button,
   Dialog,
   DialogActions,
-  DialogContent,
-  FormGroup,
-  Input,
   Stack,
   TextField,
 } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 
-export default function CategorizeDialog({ open, setOpen, setCategory }) {
-  const ref = useRef();
+interface Props {
+  open: boolean,
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>,
+  setCategory: (category: string) => void,
+}
+
+export default function CategorizeDialog({ open, setOpen, setCategory }: Props) {
+  const ref = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!ref.current) return;
