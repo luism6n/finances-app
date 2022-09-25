@@ -12,8 +12,7 @@ import { Filter, emptyFilter, Transaction } from "./types";
 function App() {
   const { myFilters, saveFilter, toggleFilter, deleteFilter } = useFilters();
 
-  const { transactions, setCategory, setTransactions } =
-    useTransactions();
+  const { transactions, setCategory, setTransactions } = useTransactions();
   const [currentFilter, setCurrentFilter] = useState<Filter>(emptyFilter);
 
   const [fileSelectorOpen, setFileSelectorOpen] = useState(false);
@@ -65,7 +64,10 @@ function App() {
     return false;
   }
 
-  function applyFilters(transactions: Transaction[], filters: Filter[]): Transaction[]{
+  function applyFilters(
+    transactions: Transaction[],
+    filters: Filter[]
+  ): Transaction[] {
     let filtered = transactions;
     for (let f of filters) {
       if (!f.enabled) {
@@ -76,7 +78,10 @@ function App() {
 
       filtered = filtered
         .filter((t) =>
-          includesAny(t.description.toLowerCase() + t.categ.toLowerCase(), q.text)
+          includesAny(
+            t.description.toLowerCase() + t.categ.toLowerCase(),
+            q.text
+          )
         )
         .filter((t) => includesAny(t.description.toLowerCase(), q.desc))
         .filter((t) => includesAny(t.categ.toLowerCase(), q.categ))

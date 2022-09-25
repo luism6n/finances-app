@@ -1,7 +1,7 @@
 import moment from "moment";
 import * as d3 from "d3";
 import { useState } from "react";
-import {Transaction} from "./types";
+import { Transaction } from "./types";
 
 export default function useGroups() {
   const allKeys = ["Month", "Weekday", "Category", "Description"];
@@ -31,7 +31,10 @@ export default function useGroups() {
     mandatoryTopKeys?: string[] | undefined,
     ellipsize?: boolean | undefined
   ) {
-    function sortKeyValues([k1, v1]: [string, string | number], [k2, v2]: [string, string | number]) {
+    function sortKeyValues(
+      [k1, v1]: [string, string | number],
+      [k2, v2]: [string, string | number]
+    ) {
       if (!ellipsize) {
         if (key === "Month") {
           return moment(k1, "MM/YY").valueOf() - +moment(k2, "MM/YY").valueOf();
@@ -45,7 +48,7 @@ export default function useGroups() {
       }
 
       if (typeof v1 === "number" && typeof v2 === "number") {
-        return v1 - v2;
+        return Math.abs(v2) - Math.abs(v1);
       } else if (typeof v1 === "string" && typeof v2 === "string") {
         return v1.localeCompare(v2);
       }

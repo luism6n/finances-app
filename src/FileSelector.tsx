@@ -14,12 +14,14 @@ import { nanoid } from "nanoid";
 import React, { useState } from "react";
 import { parse } from "node-ofx-parser";
 import moment from "moment";
-import { Transaction} from "./types";
+import { Transaction } from "./types";
 
 interface Props {
-  open: boolean,
-  setOpen: (open: boolean) => void,
-  setTransactions: (t: Transaction[] | ((t: Transaction[]) => Transaction[])) => void,
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  setTransactions: (
+    t: Transaction[] | ((t: Transaction[]) => Transaction[])
+  ) => void;
 }
 
 export default function FileSelector({
@@ -59,7 +61,7 @@ export default function FileSelector({
         return {
           amount: Number.parseFloat(t.TRNAMT),
           date: moment(t.DTPOSTED.slice(0, 8), "YYYYMMDD"),
-          memo: t.MEMO,
+          description: t.MEMO,
           categ: "?",
           sequence: i,
           fileId: fileId,
@@ -96,7 +98,9 @@ export default function FileSelector({
         <Stack>
           <Input
             sx={{ marginBottom: 3 }}
-            onChange={(e) => setSelectedFiles((e.target as HTMLInputElement).files)}
+            onChange={(e) =>
+              setSelectedFiles((e.target as HTMLInputElement).files)
+            }
             id="fileInput"
             inputProps={{ multiple: true }}
             type="file"

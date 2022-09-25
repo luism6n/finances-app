@@ -14,11 +14,13 @@ function useTransactions() {
 
     return JSON.parse(storedTransactions).map((t: any) => ({
       ...t,
-      date: moment(t.date).format(moment.defaultFormatUtc),
-      }));
-    })
+      date: moment(t.date),
+    }));
+  });
 
-  function setTransactions(t: Transaction[] | ((t: Transaction[]) => Transaction[])) {
+  function setTransactions(
+    t: Transaction[] | ((t: Transaction[]) => Transaction[])
+  ) {
     if (typeof t === "function") {
       window.localStorage.setItem(
         "transactions",
@@ -71,7 +73,9 @@ function generateABunchOfTransactions(num: number): Transaction[] {
 
   let date = moment();
 
-  let categs: {name:string, memos: string[]}[] = [{ name: "?", memos: ["Monster Inc.", "ACME"] }];
+  let categs: { name: string; memos: string[] }[] = [
+    { name: "?", memos: ["Monster Inc.", "ACME"] },
+  ];
   for (let i = 0; i < 10; i++) {
     let memos: string[] = [];
     for (let i = 0; i < 10; i++) {
